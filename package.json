@@ -1,0 +1,75 @@
+{
+  "name": "react-mail-renderer",
+  "displayName": "React Mail Renderer",
+  "publisher": "AbdoReda",
+  "description": "Preview your React mails instantly.",
+  "version": "0.2.0",
+  "icon": "assets/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Abdo-reda/react-mail-vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": ["React", "React Mail", "live", "renderer", "preview"],
+  "license": "SEE LICENSE IN LICENSE",
+  "activationEvents": [
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "react-mail.preview",
+        "title": "Open Preview Tab."
+      }
+    ],
+    "configuration": {
+      "title": "React Mail",
+      "properties": {
+        "react-mail.packageManager": {
+          "type": "string",
+          "enum": [
+            "npm"
+          ],
+          "default": "npm",
+          "markdownDescription": "Package Manager Used to install Dependencies. Currently only npm is supported. Later, support for yarn, pnpm will be added. [Reference]()"
+        },
+        "react-mail.reactMailVersion": {
+          "type": "string",
+          "enum": [
+            "3.0.4"
+          ],
+          "default": "3.0.4",
+          "markdownDescription": "The version of react mail used."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "package": "mkdir -p build && vsce package --out build/",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.9",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.13.0",
+    "typescript": "^5.6.3",
+    "@vscode/vsce": "^3.2.1"
+  }
+}

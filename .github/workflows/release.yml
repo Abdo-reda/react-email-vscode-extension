@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build/Compile the extension
+      run: npm run build
+
+    - name: Package the VSIX package
+      run: npm run package
+
+    - name: Extract version from package.json
+      uses: nyaa8/package-version@v1
+
+    - name: Upload VSIX artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: php-stan-vscode-extension
+        path: ./build/php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Extract version from package.json
+      uses: nyaa8/package-version@v1
+
+    - name: Download VSIX artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: php-stan-vscode-extension
+
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix"
+        tag: ${{ env.PACKAGE_VERSION  }}
+        name: "${{ env.PACKAGE_VERSION  }} Release"
+        generateReleaseNotes: true
+        allowUpdates: true
+        replacesArtifacts: true
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+  
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+  
+      - name: Install vsce
+        run: npm install -g vsce
+
+      - name: Extract version from package.json
+        uses: nyaa8/package-version@v1
+  
+      - name: Download VSIX artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: php-stan-vscode-extension
+
+      - name: Publish to VSCode Marketplace
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        run: |
+          vsce publish --packagePath php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix --pat $VSCE_TOKEN --no-update-package-json --skip-duplicate
