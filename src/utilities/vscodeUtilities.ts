@@ -1,14 +1,29 @@
 import * as vscode from "vscode";
-import { exec, execSync } from "child_process";
+import { ChildProcess, exec, execSync, spawn } from "child_process";
 import { ExtensionConfigurations } from "../constants/configurationEnum";
 import { LoggingService } from "../services/loggingService";
 
-const config = vscode.workspace.getConfiguration("react-mail");
+const config = vscode.workspace.getConfiguration("react-email");
 
 export function getConfiguration<T>(
   configuration: ExtensionConfigurations
 ): T | undefined {
   return config.get<T>(configuration);
+}
+
+export async function updateConfiguration(
+  configuration: ExtensionConfigurations,
+  value: any,
+  configurationTarget: vscode.ConfigurationTarget
+) {
+  await config.update(configuration, value, configurationTarget);
+}
+
+export function isConfigurationChanged(
+  event: vscode.ConfigurationChangeEvent,
+  configuration: ExtensionConfigurations,
+): boolean {
+  return event.affectsConfiguration(`react-email.${configuration}`);
 }
 
 export function showProgressMessageV2(title: string, cancellable: boolean = true, timeInSec = 10) {
@@ -18,8 +33,8 @@ export function showProgressMessageV2(title: string, cancellable: boolean = true
       title: title,
       cancellable: cancellable,
     },
-    async (progress, token) => {
-      for (let i = 0; i < 10; i++) {
+    async (progress, _) => {
+      for (let i = 0; i < timeInSec; i++) {
         setTimeout(() => progress.report({ increment: i * 10 }), 3 * 1000);
       }
     }
@@ -37,7 +52,7 @@ export function showProgressMessage(
       title: message,
       cancellable: cancellable,
     },
-    async (progress, token) => {
+    async (progress, _) => {
       const steps = 100;
       const delay = duration / steps;
 
@@ -61,6 +76,35 @@ export async function fileExistsAsync(uri: vscode.Uri): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export function spawnProcess(
+  command: string, 
+  args: string[] = [], 
+  workingDirectory: string | undefined = undefined, 
+  errorCallback: (err: Error) => void = () => {},
+): ChildProcess {
+  LoggingService.log(`Spawning a process with the command '${command}'`);
+  const process = spawn(command, args, {
+    stdio: 'inherit', 
+    shell: true,    
+    cwd: workingDirectory 
+  });
+
+  process.on('error', (err) => {
+    console.log('--- child process error', err);
+    errorCallback(err);
+  });
+
+  process.on('close', (code) => {
+    console.log('--- child process close', code);
+  });
+
+  process.on('disconnect', () => {
+    console.log('--- child process disconnected');
+  });
+
+  return process;
 }
 
 export function runCommandInBackground(
@@ -87,7 +131,7 @@ export function runCommandSync(
   command: string,
   workingDirectory: string | undefined = undefined
 ): string {
-  LoggingService.log(`Running command '${command}'`);
+  LoggingService.log(`Running command '${command}' at path ${workingDirectory}`);
   try {
     const output = execSync(command, { cwd: workingDirectory, encoding: "utf-8" });
     return output;

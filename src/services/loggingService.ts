@@ -5,7 +5,7 @@ export class LoggingService {
     private outputChannel: vscode.LogOutputChannel;
 
     private constructor() {
-        this.outputChannel = vscode.window.createOutputChannel('React Mail', {log: true});
+        this.outputChannel = vscode.window.createOutputChannel('React Email', {log: true});
     }
 
     private static get instance(): LoggingService {
@@ -22,16 +22,16 @@ export class LoggingService {
 
     public static log(message: string, ...args: any[]): void {
         this.instance.outputChannel.info(`${message}`);
-        console.log(`[react-mail]: ${message}`, ...args);
+        console.log(`[react-email]: ${message}`, ...args);
     }
 
     public static warn(message: string, ...args: any[]): void {
         this.instance.outputChannel.warn(`${message}`);
-        console.warn(`[react-mail]: ${message}`, ...args);
+        console.warn(`[react-email]: ${message}`, ...args);
     }
 
     public static error(message: string, ...args: any[]): void {
         this.instance.outputChannel.error(`${message}`);
-        console.error(`[react-mail]: ${message}`, ...args);
+        console.error(`[react-email]: ${message}`, ...args);
     }
 }

@@ -23,7 +23,7 @@ export class StatusBarService {
     
     private setDefaultCommand(): void 
     {
-        this.statusBar.command = 'react-mail._showOutput';
+        this.statusBar.command = 'react-email._showOutput';
     }
 
     private setErrorCommand(): void
@@ -40,14 +40,14 @@ export class StatusBarService {
         this.setDefaultCommand();
         this.setSuccessToolTip();
         this.statusBar.color = this.successColor;
-        this.statusBar.text = `$(react-mail-success)`;
+        this.statusBar.text = `$(react-email-success)`;
     }
     
     public setDefaultState(): void {
         this.setDefaultCommand();
         this.setDefaultToolTip();
         this.statusBar.color = this.defaultColor;
-        this.statusBar.text = `$(react-mail-default)`;
+        this.statusBar.text = `$(react-email-default)`;
     }
     
     public setLoadingState(): void {
@@ -60,7 +60,7 @@ export class StatusBarService {
     public setErrorState(): void {
         this.setErrorCommand();
         this.statusBar.color = this.errorColor;
-        this.statusBar.text = `$(react-mail-error)`;
+        this.statusBar.text = `$(react-email-error)`;
     }
 
     private setDefaultToolTip(): void {
@@ -68,7 +68,7 @@ export class StatusBarService {
     }
 
     private setLoadingToolTip(): void {
-        this.statusBar.tooltip = 'react mail rendering ...';
+        this.statusBar.tooltip = 'react email rendering ...';
     }
 
     private setSuccessToolTip(): void {

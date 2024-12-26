@@ -12,3 +12,4 @@ vsc-extension-quickstart.md
 resources/**
 build/**
 .github/**
+emails/**

@@ -12,5 +12,8 @@
 		"noImplicitReturns": true, 
 		"noFallthroughCasesInSwitch": true, 
 		"noUnusedParameters": true,  
-	}
+	},
+	"exclude": [
+        "project"
+    ]
 }

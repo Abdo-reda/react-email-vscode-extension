@@ -1,21 +1,28 @@
 {
-  "name": "react-mail-renderer",
-  "displayName": "React Mail Renderer",
+  "name": "react-email-renderer",
+  "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React mails instantly.",
   "version": "0.2.0",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Abdo-reda/react-mail-vscode-extension"
+    "url": "https://github.com/Abdo-reda/react-email-vscode-extension"
   },
   "engines": {
     "vscode": "^1.95.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Other"
   ],
-  "keywords": ["React", "React Mail", "live", "renderer", "preview"],
+  "keywords": [
+    "react",
+    "email",
+    "live",
+    "renderer",
+    "previewer"
+  ],
   "license": "SEE LICENSE IN LICENSE",
   "activationEvents": [
     "onLanguage:javascriptreact",
@@ -23,30 +30,44 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "menus": {
+      "editor/title": [
+        {
+          "command": "react-email.preview",
+          "when": "editorLangId == typescriptreact || editorLangId == javascriptreact",
+          "group": "navigation"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "react-mail.preview",
-        "title": "Open Preview Tab."
+        "command": "react-email.preview",
+        "title": "Open Preview Tab",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "react-email.selectRenderVersion",
+        "title": "Select @react-email/render Version.",
+        "icon": "$(versions)"
       }
     ],
     "configuration": {
-      "title": "React Mail",
+      "title": "React Email",
       "properties": {
-        "react-mail.packageManager": {
+        "react-email.packageManager": {
           "type": "string",
           "enum": [
             "npm"
           ],
           "default": "npm",
-          "markdownDescription": "Package Manager Used to install Dependencies. Currently only npm is supported. Later, support for yarn, pnpm will be added. [Reference]()"
+          "markdownDescription": "Package Manager Used to install Dependencies. Currently only npm is supported. Later, support for yarn, pnpm, bun will be added. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
         },
-        "react-mail.reactMailVersion": {
+        "react-email.reactEmailVersion": {
           "type": "string",
-          "enum": [
-            "3.0.4"
-          ],
-          "default": "3.0.4",
-          "markdownDescription": "The version of react mail used."
+          "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
+          "default": "latest",
+          "markdownDescription": "The version of react-email used. [Reference](https://www.npmjs.com/package/react-email?activeTab=versions)"
         }
       }
     }
@@ -68,8 +89,8 @@
     "@typescript-eslint/parser": "^8.7.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.1",
     "eslint": "^9.13.0",
-    "typescript": "^5.6.3",
-    "@vscode/vsce": "^3.2.1"
+    "typescript": "^5.6.3"
   }
 }
