@@ -2,7 +2,7 @@
   "name": "react-email-renderer",
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
-  "description": "Preview your React mails instantly.",
+  "description": "Preview your React emails instantly.",
   "version": "0.2.0",
   "icon": "assets/logo.png",
   "repository": {
@@ -49,20 +49,100 @@
         "command": "react-email.selectRenderVersion",
         "title": "Select @react-email/render Version.",
         "icon": "$(versions)"
+      },
+      {
+        "command": "react-email.showServerTerminal",
+        "title": "Shows the Server Terminal.",
+        "icon": "$(server)"
       }
     ],
     "configuration": {
       "title": "React Email",
       "properties": {
+        "react-email.dependencies": {
+          "type": "string",
+          "enum": [
+            "external",
+            "local"
+          ],
+          "markdownEnumDescriptions": [
+            "`external` sets up an exteranl project used to render all emails. Has the Advantage that dependencies do not need to be installed in the current project.",
+            "`local` uses the dependencies that are located inside of the project."
+          ],
+          "default": "external",
+          "markdownDescription": "Which dependencies will be used to render the email.  [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
+        },
         "react-email.packageManager": {
           "type": "string",
           "enum": [
             "npm"
           ],
           "default": "npm",
-          "markdownDescription": "Package Manager Used to install Dependencies. Currently only npm is supported. Later, support for yarn, pnpm, bun will be added. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
+          "markdownDescription": "The Package Manager Used to install and run Dependencies. Currently only npm is supported. Later, support for yarn, pnpm, bun will be added. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
         },
-        "react-email.reactEmailVersion": {
+        "react-email.renderOn": {
+          "type": "string",
+          "enum": [
+            "onSave",
+            "onChange"
+          ],
+          "default": "onSave",
+          "markdownDescription": "When should the email be rerendered and updated. `onSave` will refresh the email preview only when the active file is saved. `onChange` will refresh teh email preview on any change detected to the active file."
+        },
+        "react-email.server.port": {
+          "type": "number",
+          "default": 7777,
+          "maximum": 65535,
+          "minimum": 0,
+          "description": "The Port that the Live Render Server will run on. Make sure that the port is not reserved, assigned or in use for the extension to work."
+        },
+        "react-email.server.terminalShow": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Shows and hides the server terminal when it runs. By default, the server terminal is hidden and can be show by clicking on the status bar icon or running the `react-email.showServerTerminal` command"
+        },
+        "react-email.server.terminalColor": {
+          "type": "string",
+          "enum": [
+            "terminal.ansiBlack",
+            "terminal.ansiBlue",
+            "terminal.ansiBrightBlack",
+            "terminal.ansiBrightBlue",
+            "terminal.ansiBrightCyan",
+            "terminal.ansiBrightGreen",
+            "terminal.ansiBrightMagenta",
+            "terminal.ansiBrightRed",
+            "terminal.ansiBrightWhite",
+            "terminal.ansiBrightYellow",
+            "terminal.ansiCyan",
+            "terminal.ansiGreen",
+            "terminal.ansiMagenta",
+            "terminal.ansiRed",
+            "terminal.ansiWhite",
+            "terminal.ansiYellow"
+          ],
+          "enumDescriptions": [
+            "Black ANSI color.",
+            "Blue ANSI color.",
+            "BrightBlack ANSI color.",
+            "BrightBlue ANSI color.",
+            "BrightCyan ANSI color.",
+            "BrightGreen ANSI color.",
+            "BrightMagenta ANSI color.",
+            "BrightRed ANSI color.",
+            "BrightWhite ANSI color.",
+            "BrightYellow ANSI color.",
+            "Cyan ANSI color.",
+            "Green ANSI color.",
+            "Magenta ANSI color.",
+            "Red ANSI color.",
+            "White ANSI color.",
+            "Yellow ANSI color."
+          ],
+          "default": "terminal.ansiCyan",
+          "markdownDescription": "The Color of the Render Server Terminal. This affects nothing and is only for appearance purposes. The choice is limited to vscode built-in colors."
+        },
+        "react-email.packages.reactEmailVersion": {
           "type": "string",
           "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",

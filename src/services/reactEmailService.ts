@@ -1,5 +1,5 @@
 import { ExtensionConfigurations } from "../constants/configurationEnum";
-import { getActiveDocument, getConfiguration, isConfigurationChanged, runCommandInBackground, showErrorMessage, updateConfiguration } from "../utilities/vscodeUtilities";
+import { getActiveDocument, getConfiguration, isConfigurationChanged, runCommandInBackground, showErrorMessage, showInfoMessage, updateConfiguration } from "../utilities/vscodeUtilities";
 import * as vscode from "vscode";
 import * as path from "path";
 import { LoggingService } from "./loggingService";
@@ -7,14 +7,18 @@ import { StatusBarService } from "./statusBarService";
 import { IPackageManagerService } from "../interfaces/packageManagerServiceInterface";
 import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { PackagesEnum } from "../constants/packagesEnum";
-import { NpmService } from "./packageManagers/npmService";
+import { PackageManagerServiceFactory } from "./packageManagers/packageManagerServiceFactory";
 
-export class ReactMailService {
+export class ReactEmailService {
   private reactEmailVersion = "latest";
-  private packageManager = PackageManagerEnum.NPM;
-  private packageService!: IPackageManagerService;
   private storagePath: vscode.Uri = vscode.Uri.file("");
   private statusBarService!: StatusBarService;
+
+  private packageManager = PackageManagerEnum.NPM;
+  private packageManagerService!: IPackageManagerService;
+  private serverPort: number = 7777;
+  private serverTerminalShow: boolean = false;
+  private serverTerminalColor: string = "terminal.ansiCyan";
 
   constructor() {
     this.onCommandError = this.onCommandError.bind(this);
@@ -40,7 +44,7 @@ export class ReactMailService {
     const dir = path.dirname(analysisPath);
     const base = path.basename(analysisPath);
     LoggingService.log(`Analysing ${dir} ${base}`);
-    runCommandInBackground(`command`, this.onCommandError, this.onCommandSuccess, dir);
+    // runCommandInBackground(`command`, this.onCommandError, this.onCommandSuccess, dir);
   }
 
   private onCommandError(output: string) {
@@ -82,6 +86,9 @@ export class ReactMailService {
   private setupConfigurations() {
     this.reactEmailVersion = getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? "latest";
     this.packageManager = getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM;
+    this.serverPort = getConfiguration<number>(ExtensionConfigurations.SERVER_PORT) ?? 7777;
+    this.serverTerminalShow = getConfiguration<boolean>(ExtensionConfigurations.SERVER_TERMINAL_SHOW) ?? false;
+    this.serverTerminalColor = getConfiguration<string>(ExtensionConfigurations.SERVER_TERMINAL_COLOR) ?? "terminal.ansiCyan";
 
     //TODO: there is an issue with this !!!!
     return vscode.workspace.onDidChangeConfiguration((event) => {
@@ -98,7 +105,7 @@ export class ReactMailService {
   }
 
   async chooseReactEmailVersion() {
-    const versions = await this.packageService.getPackageVersions(PackagesEnum.REACT_EMAIL);
+    const versions = await this.packageManagerService.getPackageVersions(PackagesEnum.REACT_EMAIL);
 
     const selectedVersion = await vscode.window.showQuickPick(["latest", ...versions], {
       placeHolder: `Current version: ${this.reactEmailVersion}`,
@@ -112,30 +119,53 @@ export class ReactMailService {
   }
 
   private switchPackageManagerService(): void {
-    switch (this.packageManager) {
-      case PackageManagerEnum.NPM:
-        this.packageService = new NpmService();
-        break;
-      default:
-        LoggingService.warn(`Selected Package Manager ${this.packageManager} is not Supported`);
-    }
+    this.packageManagerService = PackageManagerServiceFactory.getService(this.packageManager);
     this.initPackageManagerService();
   }
 
   runServer(): void {
     //TODO: add a port configuraiton later.
     //TODO: fix email render version
-    this.packageService.runEmailServer("3000", this.projectPath);
+    this.packageManagerService.runEmailServer(this.serverPort, this.projectPath, this.serverTerminalShow, new vscode.ThemeColor(this.serverTerminalColor));
+  }
+
+  showServerTerminal(): void {
+    this.packageManagerService.showEmailServer();
   }
 
   private initPackageManagerService(): void {
     LoggingService.log(`Checking Package Manager ${this.packageManager}`);
-    const exists = this.packageService.checkVersion();
+    const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
-      showErrorMessage(`Could not find a suitable package manager. The package manager ${this.packageManager} is not installed. Please install it or select a different one.`);
+      showErrorMessage(`Could not find a suitable package manager. The package manager ${this.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`);
       return;
     }
-    this.packageService.setupProject(this.reactEmailVersion, this.projectPath);
+    this.setupExternalProject();
+  }
+
+  private setupExternalProject() {
+    this.setupExternalProjectDirectories(this.projectPath);
+    //TODO: maybe show a loading message instead.
+    this.packageManagerService.installPackages(
+      //TODO: replace with configuration/setting
+      [
+        { name: PackagesEnum.REACT_EMAIL, version: "latest" },
+        { name: PackagesEnum.REACT_EMAIL_COMPONENTS, version: "latest" },
+        { name: PackagesEnum.REACT, version: "latest" },
+        { name: PackagesEnum.REACT_DOM, version: "latest" },
+      ],
+      this.projectPath.fsPath,
+      () => showErrorMessage("There was an error setting up the external project for react-email. Please check Logs."),
+      () => showInfoMessage("Succesfully setup external project for react-email")
+    );
+  }
+
+  private setupExternalProjectDirectories(projectPath: vscode.Uri) {
+    const emailsFolder = vscode.Uri.joinPath(projectPath, "emails");
+    vscode.workspace.fs.createDirectory(emailsFolder);
+    const mainEmailFile = vscode.Uri.joinPath(emailsFolder, "main.tsx");
+    vscode.workspace.fs.writeFile(mainEmailFile, new Uint8Array());
+    LoggingService.log(`Init Emails folder at ${emailsFolder.fsPath}`);
   }
 
   private setupOnChangeListener() {
@@ -176,7 +206,6 @@ export class ReactMailService {
   }
 
   get renderServerURL() {
-    const port = "3000"; //TODO: make into configuration
-    return `http://localhost:${port}/preview/main`;
+    return `http://localhost:${this.serverPort}/preview/main`;
   }
 }

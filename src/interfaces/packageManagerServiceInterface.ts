@@ -1,16 +1,21 @@
-import { ChildProcess } from "child_process";
 import { Terminal } from "vscode";
 import * as vscode from "vscode";
+import { PackageManagerEnum } from "../constants/packageManagerEnum";
+import { ISimplePackage } from "./simplePackageInterface";
 
 export interface IPackageManagerService {
+  packageManager: PackageManagerEnum;
   emailServerTerminal: Terminal|undefined;
-  emailServer: ChildProcess|undefined;
-  setupProject: (version: string, projectPath: vscode.Uri) => void;
-  isValidPackageVersion: (name: string, version: string) => Promise<boolean>;
-  getPackageVersions: (version: string) => Promise<string[]>;
+  checkInstalled: () => boolean;
+  
+  // restartServer: (port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) => void;
+  runEmailServer: (port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) => void;
+  showEmailServer: () => void;
   killEmailServer: () => void;
-  runEmailServer: (port: string, projectPath: vscode.Uri) => void;
-  checkVersion: () => boolean;
+  
+  // setupProject: (version: string, projectPath: vscode.Uri) => void;
+  installPackages: (packages: ISimplePackage[],  cwd: string|undefined, errorCallback?: (output: string) => void, successCallback?: (output: string) => void) => void;
   // downloadPackage: (name: string, version: string) => boolean;
-  installPackage: (name: string, version: string,  cwd: string|undefined) => boolean;
+  getPackageVersions: (version: string) => Promise<string[]>;
+  isValidPackageVersion: (name: string, version: string) => Promise<boolean>;
 }

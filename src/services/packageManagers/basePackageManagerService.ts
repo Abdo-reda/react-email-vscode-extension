@@ -1,20 +1,15 @@
 import * as vscode from "vscode";
-import { ChildProcess } from "child_process";
 import { IPackageManagerService } from "../../interfaces/packageManagerServiceInterface";
 import { IPackageRegistry } from "../../interfaces/packageRegistryInterface";
 import { LoggingService } from "../loggingService";
 import { Terminal } from "vscode";
-import { PackagesEnum } from "../../constants/packagesEnum";
+import { PackageManagerEnum } from "../../constants/packageManagerEnum";
+import { ISimplePackage } from "../../interfaces/simplePackageInterface";
 
-export abstract class BasePackageService implements IPackageManagerService {
+export abstract class BasePackageManagerService implements IPackageManagerService {
+  abstract packageManager: PackageManagerEnum;
   emailServerTerminal: Terminal | undefined;
-  emailServer: ChildProcess | undefined;
-  private packageVersions = new Map<string, string[]>();
-
-  setupProject(version: string, projectPath: vscode.Uri) {
-    this.setupDirectories(projectPath);
-    this.installPackage(PackagesEnum.REACT_EMAIL, version, projectPath.fsPath);
-  }
+  private packageVersions = new Map<string, string[]>(); //TODO: cache in global state or something
 
   /**
    * Retrieves the package metadata from npm.
@@ -33,21 +28,18 @@ export abstract class BasePackageService implements IPackageManagerService {
     return (await this.getPackageVersions(name)).some((v) => v === version);
   }
 
+  abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;
+
   killEmailServer(): void {
     LoggingService.log(`Killing Email Server`);
     this.emailServerTerminal?.dispose();
   }
 
-  setupDirectories(projectPath: vscode.Uri): void {
-    const emailsFolder = vscode.Uri.joinPath(projectPath, "emails");
-    vscode.workspace.fs.createDirectory(emailsFolder);
-    const mainEmail = vscode.Uri.joinPath(emailsFolder, "main.tsx");
-    vscode.workspace.fs.writeFile(mainEmail, new Uint8Array());
-    LoggingService.log(`Init Emails folder at ${emailsFolder.fsPath}`);
+  showEmailServer(): void {
+    this.emailServerTerminal?.show();
   }
 
-  abstract runEmailServer(port: string, projectPath: vscode.Uri): void;
-  abstract checkVersion(): boolean;
+  abstract checkInstalled(): boolean;
   abstract downloadPackage(_name: string, _version: string): boolean;
-  abstract installPackage(_name: string, _version: string, _cwd: string | undefined): boolean;
+  abstract installPackages(_packages: ISimplePackage[], _cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
 }

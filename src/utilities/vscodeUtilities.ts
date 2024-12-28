@@ -109,9 +109,9 @@ export function spawnProcess(
 
 export function runCommandInBackground(
   command: string,
+  workingDirectory: string | undefined = undefined,
   errorCallback: (output: string) => void = () => {},
   successCallback: (output: string) => void = () => {},
-  workingDirectory: string | undefined = undefined,
 ) {
   LoggingService.log(`Running command '${command}'`);
   exec(command, { cwd: workingDirectory }, (error, stdout, stderr) => {
