@@ -49,11 +49,6 @@
         "command": "react-email.selectRenderVersion",
         "title": "Select @react-email/render Version.",
         "icon": "$(versions)"
-      },
-      {
-        "command": "react-email.showServerTerminal",
-        "title": "Shows the Server Terminal.",
-        "icon": "$(server)"
       }
     ],
     "configuration": {

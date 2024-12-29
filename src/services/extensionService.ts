@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { StatusBarService } from "./statusBarService";
 import { LoggingService } from "./loggingService";
 import { ReactEmailService } from "./reactEmailService";
-import { getWebViewContents } from "../constants/previewWebview";
+import { getWebViewContents } from "../constants/previewWebviewConstant";
 
 export class ExtensionService {
   private reactMailService = new ReactEmailService();
@@ -16,7 +16,7 @@ export class ExtensionService {
 
   deactivate() {}
 
-  private createPreviewWebview(context: vscode.ExtensionContext): vscode.WebviewPanel {
+  private createPreviewWebview(context: vscode.ExtensionContext, htmlContent: string, textContent: string): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
       "react-email.server",
       "React Email Server",
@@ -28,10 +28,12 @@ export class ExtensionService {
         enableScripts: true,
       }
     );
-    panel.webview.html = getWebViewContents(this.reactMailService.renderServerURL);
+    // panel.webview.html = getWebViewContents();
+    // panel.webview.html = htmlContent;
+    panel.webview.html = textContent;
     panel.webview.onDidReceiveMessage(
       (message) => {
-        console.log("--- recieved message", message);
+        // console.log("--- recieved message", message);
       },
       undefined,
       context.subscriptions
@@ -44,20 +46,14 @@ export class ExtensionService {
 
     disposables.push(
       vscode.commands.registerCommand("react-email.preview", async () => {
-        this.reactMailService.runServer();
-        this.createPreviewWebview(context);
+        const renderOutput = this.reactMailService.renderEmail();
+        this.createPreviewWebview(context, renderOutput.html, renderOutput.text);
       })
     );
 
     disposables.push(
       vscode.commands.registerCommand("react-email.selectRenderVersion", async () => {
         await this.reactMailService.chooseReactEmailVersion();
-      })
-    );
-
-    disposables.push(
-      vscode.commands.registerCommand("react-email.showServerTerminal", () => {
-        this.reactMailService.showServerTerminal();
       })
     );
 

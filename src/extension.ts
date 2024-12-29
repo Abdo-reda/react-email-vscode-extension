@@ -1,6 +1,15 @@
 import * as vscode from 'vscode';
 import { ExtensionService } from "./services/extensionService";
 
+//NOW:
+	//- fix general flow issues. There are mainly three things.
+		//- file changes/saves.
+		//- running rendering script
+		//- panel updating.
+		//*** panel opening is seperate and independent. So, we might make like an event system, or a panel singlton class.
+			//the panel service will hold the most recent and updated renderEmailOutput.
+	//- whenever I safe the file or change the file, the script needs to rerun, the panel content needs to get updated.
+
 //---- Tab feature:
 	//- the tab title is filename[preview]
 	//- the tab icon is react email maybe
@@ -18,7 +27,7 @@ import { ExtensionService } from "./services/extensionService";
 	//--- Make sure that the server runs after installation is complete ... I think ...
 	//--- Fix the order of the configuration
 	//--- we can't disable things for now, so we will have to manually show warnings and update the setting for the user.
-	//--- make the status bar a signleton maybe ... 
+	//--- make the status bar service a signleton maybe ... 
 	//--- Warnings from npm??
 
 //--- functionality

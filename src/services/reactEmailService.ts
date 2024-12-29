@@ -8,17 +8,21 @@ import { IPackageManagerService } from "../interfaces/packageManagerServiceInter
 import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { PackagesEnum } from "../constants/packagesEnum";
 import { PackageManagerServiceFactory } from "./packageManagers/packageManagerServiceFactory";
+import { RENDER_EMAIL_SCRIPT } from "../constants/renderScriptConstant";
+import { IRenderEmail } from "../interfaces/renderEmailOutput";
 
 export class ReactEmailService {
+  private encoder = new TextEncoder(); 
+
   private reactEmailVersion = "latest";
   private storagePath: vscode.Uri = vscode.Uri.file("");
   private statusBarService!: StatusBarService;
 
   private packageManager = PackageManagerEnum.NPM;
   private packageManagerService!: IPackageManagerService;
-  private serverPort: number = 7777;
-  private serverTerminalShow: boolean = false;
-  private serverTerminalColor: string = "terminal.ansiCyan";
+  // private serverPort: number = 7777;
+  // private serverTerminalShow: boolean = false;
+  // private serverTerminalColor: string = "terminal.ansiCyan";
 
   constructor() {
     this.onCommandError = this.onCommandError.bind(this);
@@ -86,9 +90,6 @@ export class ReactEmailService {
   private setupConfigurations() {
     this.reactEmailVersion = getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? "latest";
     this.packageManager = getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM;
-    this.serverPort = getConfiguration<number>(ExtensionConfigurations.SERVER_PORT) ?? 7777;
-    this.serverTerminalShow = getConfiguration<boolean>(ExtensionConfigurations.SERVER_TERMINAL_SHOW) ?? false;
-    this.serverTerminalColor = getConfiguration<string>(ExtensionConfigurations.SERVER_TERMINAL_COLOR) ?? "terminal.ansiCyan";
 
     //TODO: there is an issue with this !!!!
     return vscode.workspace.onDidChangeConfiguration((event) => {
@@ -123,14 +124,8 @@ export class ReactEmailService {
     this.initPackageManagerService();
   }
 
-  runServer(): void {
-    //TODO: add a port configuraiton later.
-    //TODO: fix email render version
-    this.packageManagerService.runEmailServer(this.serverPort, this.projectPath, this.serverTerminalShow, new vscode.ThemeColor(this.serverTerminalColor));
-  }
-
-  showServerTerminal(): void {
-    this.packageManagerService.showEmailServer();
+  renderEmail(): IRenderEmail {
+    return this.packageManagerService.renderEmail(this.projectPath.fsPath);
   }
 
   private initPackageManagerService(): void {
@@ -144,12 +139,18 @@ export class ReactEmailService {
   }
 
   private setupExternalProject() {
-    this.setupExternalProjectDirectories(this.projectPath);
+    // if live server
+    this.setupExternalProjectDirectories();
     //TODO: maybe show a loading message instead.
+
+    //this.packageManagerService.setupProject()
+      //- if live -->
+      //- if not live -->
+    //npm exec -y -- degit Abdo-reda/react-email-render-template#main project 
     this.packageManagerService.installPackages(
       //TODO: replace with configuration/setting
       [
-        { name: PackagesEnum.REACT_EMAIL, version: "latest" },
+        { name: PackagesEnum.REACT_EMAIL_RENDER, version: "latest" },
         { name: PackagesEnum.REACT_EMAIL_COMPONENTS, version: "latest" },
         { name: PackagesEnum.REACT, version: "latest" },
         { name: PackagesEnum.REACT_DOM, version: "latest" },
@@ -160,12 +161,10 @@ export class ReactEmailService {
     );
   }
 
-  private setupExternalProjectDirectories(projectPath: vscode.Uri) {
-    const emailsFolder = vscode.Uri.joinPath(projectPath, "emails");
-    vscode.workspace.fs.createDirectory(emailsFolder);
-    const mainEmailFile = vscode.Uri.joinPath(emailsFolder, "main.tsx");
-    vscode.workspace.fs.writeFile(mainEmailFile, new Uint8Array());
-    LoggingService.log(`Init Emails folder at ${emailsFolder.fsPath}`);
+  private setupExternalProjectDirectories() {
+    vscode.workspace.fs.writeFile(this.scriptFilePath,  this.encoder.encode(RENDER_EMAIL_SCRIPT));
+    vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array());
+    LoggingService.log(`Init Main Email file at ${this.mainEmailFilePath.fsPath}`);
   }
 
   private setupOnChangeListener() {
@@ -185,6 +184,7 @@ export class ReactEmailService {
     //TODO: only if file is a tsx/jsx file ... fix later
     const disposable = vscode.workspace.onDidSaveTextDocument((document) => {
       // if (this.analyseOn !== AnalysisOn.ON_SAVE) return;
+      if (document.languageId !== 'javascriptreact' && document.languageId !== 'typescriptreact') return;
       LoggingService.log(`file saved ${document.fileName}`);
       this.updateMainEmail(document);
     });
@@ -192,20 +192,23 @@ export class ReactEmailService {
   }
 
   private updateMainEmail(document: vscode.TextDocument) {
-    const encoder = new TextEncoder(); //TODO: optmize this and fix this, maybe move to utility
     const text = document.getText();
-    vscode.workspace.fs.writeFile(this.mainEmailFilePath, encoder.encode(text));
+    vscode.workspace.fs.writeFile(this.mainEmailFilePath, this.encoder.encode(text));
+  }
+
+  get scriptFilePath() {
+    return vscode.Uri.joinPath(this.projectPath, "script.js");
   }
 
   get mainEmailFilePath() {
-    return vscode.Uri.joinPath(this.projectPath, "emails", "main.tsx");
+    return vscode.Uri.joinPath(this.projectPath, "email.tsx");
   }
 
   get projectPath() {
     return vscode.Uri.joinPath(this.storagePath, `project`); //${this.reactEmailVersion}
   }
 
-  get renderServerURL() {
-    return `http://localhost:${this.serverPort}/preview/main`;
-  }
+  // get renderServerURL() {
+  //   return `http://localhost:${this.serverPort}/preview/main`;
+  // }
 }
