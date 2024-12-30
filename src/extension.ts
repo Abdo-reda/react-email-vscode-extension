@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //NOW:
-//- see into implement the toolbar.
 //- implement vite server approach
-//- optimize render script.
+//- see into implementing a status bar
+//- see into implement the toolbar.
+//- optimize render script somehow.
 //- loading indicator.
 //- sometimes it doesn't work.
 

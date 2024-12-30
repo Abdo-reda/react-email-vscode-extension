@@ -132,7 +132,7 @@ export class ReactEmailService {
       () => {
         this.isSettingProjectUp = false;
         showInfoMessage("Succesfully setup external project for react-email");
-        PreviewPanelService.setNoneState();
+        PreviewPanelService.setNoneState(); //TODO: maybe ready state or preview if there is no email should be ready, or update the none state to be ready state.
         this.renderEmail();
       }
     );
