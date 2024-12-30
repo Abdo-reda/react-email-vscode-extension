@@ -2,13 +2,15 @@ import * as vscode from 'vscode';
 import { ExtensionService } from "./services/extensionService";
 
 //NOW:
-	//- fix general flow issues. There are mainly three things.
-		//- file changes/saves.
-		//- running rendering script
-		//- panel updating.
-		//*** panel opening is seperate and independent. So, we might make like an event system, or a panel singlton class.
-			//the panel service will hold the most recent and updated renderEmailOutput.
+	//- whenever a new file gets focus, we should try and render that file.
+	//- see into implement the toolbar.
+	//- implement vite server approach
+	//- fix general flow issues. 
+		//- render script before project is setup. (throws an error)
+		//- optimize render script.
 	//- whenever I safe the file or change the file, the script needs to rerun, the panel content needs to get updated.
+		//- loading indicator.
+		//- sometimes it doesn't work.
 
 //---- Tab feature:
 	//- the tab title is filename[preview]
