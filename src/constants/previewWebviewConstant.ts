@@ -17,7 +17,7 @@ export function getLoadingWebviewContent() {
             width: 50px;
             height: 50px;
             margin: 20px;
-            animation: spin 1.5s linear infinite;
+            animation: spin 2s linear infinite;
         }
         @keyframes spin {
             0% {
@@ -34,8 +34,7 @@ export function getLoadingWebviewContent() {
 </head>
 <body>
     <svg class="loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="40" stroke="#555" stroke-width="10" fill="none" stroke-dasharray="250" stroke-dashoffset="0">
-            <animate attributeName="stroke-dashoffset" from="0" to="250" dur="1.5s" repeatCount="indefinite" />
+        <circle cx="50" cy="50" r="40" stroke="#555" stroke-width="10" fill="none" stroke-dasharray="250" stroke-dashoffset="48">
         </circle>
     </svg>
     <div class="message">Setting up stuff...</div>

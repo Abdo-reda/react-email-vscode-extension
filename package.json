@@ -81,7 +81,7 @@
             "OnSave",
             "OnChange"
           ],
-          "default": "onSave",
+          "default": "OnSave",
           "markdownDescription": "When should the email be rerendered and updated. `onSave` will refresh the email preview only when the active file is saved. `onChange` will refresh the email preview on any change detected to the active file."
         },
         "react-email.server.port": {

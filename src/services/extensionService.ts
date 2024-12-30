@@ -15,23 +15,29 @@ export class ExtensionService {
   private extensionConfiguration: IExtensionConfiguration = {
     packageManager: PackageManagerEnum.NPM,
     renderOn: RenderOnEnum.ON_SAVE,
+    packages: {
+      reactEmailVersion: "latest"
+    }
   };
 
   async activate(context: vscode.ExtensionContext) {
-    this.setupConfigurations();
     PreviewPanelService.init(context);
-    this.reactMailService.initExtension(context, this.extensionConfiguration);
+    this.setupConfigurations();
     this.registerCommands(context);
+    this.reactMailService.initExtension(context, this.extensionConfiguration);
     LoggingService.log("React Email is now active!");
   }
 
   deactivate() {}
 
   private setupConfigurations() {
+
     this.extensionConfiguration = {
-      // getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION);
       renderOn: getConfiguration<RenderOnEnum>(ExtensionConfigurations.RENDER_ON) ?? RenderOnEnum.ON_SAVE,
       packageManager: getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM,
+      packages: {
+        reactEmailVersion: getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? 'latest'
+      }
     };
 
     //TODO: there is an issue with this !!!!

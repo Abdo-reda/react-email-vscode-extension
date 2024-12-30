@@ -28,8 +28,12 @@ export class PreviewPanelService {
     this.refreshPanel();
   }
 
+  static isDisposed(): boolean {
+    return !this.previewPanel;
+  }
+
   static setEmailTitle(title: string): void {
-    this.panelStateInfo.emailTitle = title;
+    this.panelStateInfo.emailTitle = `${title}`;
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
@@ -81,6 +85,9 @@ export class PreviewPanelService {
         localResourceRoots: [],
       }
     );
+
+    // panel.iconPath = vscode.Uri.file(context.asAbsolutePath('resources/loading.png'));
+    
     // panel.webview.onDidReceiveMessage(
     //   (message) => {
     //     console.log("--- recieved message");

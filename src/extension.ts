@@ -2,13 +2,9 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //NOW:
-//- whenever a new file gets focus, we should try and render that file.
 //- see into implement the toolbar.
 //- implement vite server approach
-//- fix general flow issues.
-//- render script before project is setup. (throws an error)
 //- optimize render script.
-//- whenever I safe the file or change the file, the script needs to rerun, the panel content needs to get updated.
 //- loading indicator.
 //- sometimes it doesn't work.
 

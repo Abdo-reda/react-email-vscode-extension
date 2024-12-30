@@ -15,6 +15,7 @@ import { IExtensionConfiguration } from "../interfaces/extensionConfigurationInt
 
 export class ReactEmailService {
   private encoder = new TextEncoder();
+  private isSettingProjectUp = false;
 
   private reactEmailVersion = "latest";
   private storagePath: vscode.Uri = vscode.Uri.file("");
@@ -38,7 +39,6 @@ export class ReactEmailService {
     this.extensionConfiguration = extensionConfiguration;
     this.switchPackageManagerService(this.extensionConfiguration.packageManager);
     this.setupFileChangesListener(context);
-    this.setupOnChangeActiveDocumentListener(context);
   }
 
   updateExtensionConfiguration(newConfiguration: IExtensionConfiguration): void {
@@ -48,21 +48,11 @@ export class ReactEmailService {
     this.extensionConfiguration = newConfiguration;
   }
 
-  private setupOnChangeActiveDocumentListener(context: vscode.ExtensionContext) {
-    const disposable = vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (!editor) return;
-      const document = editor.document;
-      if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
-      LoggingService.log(`Rendering Active file ${document.fileName}`);
-      this.updateAndRenderEmail(document);
-    });
-    context.subscriptions.push(disposable);
-  }
-
   private setupFileChangesListener(context: vscode.ExtensionContext): void {
     const disposables: vscode.Disposable[] = [];
     disposables.push(this.setupOnChangeListener());
     disposables.push(this.setupOnSaveListener());
+    disposables.push(this.setupOnChangeActiveDocumentListener());
     context.subscriptions.push(...disposables);
   }
 
@@ -108,15 +98,15 @@ export class ReactEmailService {
     LoggingService.log(`Checking Package Manager ${this.extensionConfiguration.packageManager}`);
     const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
-      showErrorMessage(
-        `Could not find a suitable package manager. The package manager ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
-      );
+      showErrorMessage(`Could not find a suitable package manager. ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`);
       return;
     }
     this.setupExternalProject();
   }
 
   private setupExternalProject() {
+    this.isSettingProjectUp = true;
+    PreviewPanelService.setLoadingState();
     // if live server
     this.setupExternalProjectDirectories();
     //TODO: maybe show a loading message instead.
@@ -134,8 +124,17 @@ export class ReactEmailService {
         { name: PackagesEnum.REACT_DOM, version: "latest" },
       ],
       this.projectPath.fsPath,
-      () => showErrorMessage("There was an error setting up the external project for react-email. Please check Logs"),
-      () => showInfoMessage("Succesfully setup external project for react-email")
+      (error) => {
+        this.isSettingProjectUp = false;
+        showErrorMessage("There was an error setting up the external project for react-email. Please check Logs");
+        PreviewPanelService.setErrorState(error);
+      },
+      () => {
+        this.isSettingProjectUp = false;
+        showInfoMessage("Succesfully setup external project for react-email");
+        PreviewPanelService.setNoneState();
+        this.renderEmail();
+      }
     );
   }
 
@@ -160,26 +159,38 @@ export class ReactEmailService {
   private setupOnSaveListener() {
     LoggingService.log("Setting up OnSave Listener");
     const disposable = vscode.workspace.onDidSaveTextDocument((document) => {
-      LoggingService.log(`file saved ${document.fileName}`);
       if (this.extensionConfiguration.renderOn !== RenderOnEnum.ON_SAVE) return;
       if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
+      LoggingService.log(`file saved ${document.fileName}`);
       this.updateAndRenderEmail(document);
     });
     return disposable;
   }
 
-  private updateAndRenderEmail(document: vscode.TextDocument): void {
-    this.updateMainEmail(document);
+  private setupOnChangeActiveDocumentListener() {
+    const disposable = vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (!editor) return;
+      const document = editor.document;
+      if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
+      LoggingService.log(`Updating And Rendering Active file ${document.fileName}`);
+      this.updateAndRenderEmail(document);
+    });
+    return disposable;
+  }
+
+  private async updateAndRenderEmail(document: vscode.TextDocument) {
+    await this.updateMainEmail(document);
     this.renderEmail();
   }
 
-  private updateMainEmail(document: vscode.TextDocument): void {
+  private async updateMainEmail(document: vscode.TextDocument) {
     PreviewPanelService.setEmailTitle(path.basename(document.fileName));
     const text = document.getText();
-    vscode.workspace.fs.writeFile(this.mainEmailFilePath, this.encoder.encode(text));
+    await vscode.workspace.fs.writeFile(this.mainEmailFilePath, this.encoder.encode(text));
   }
 
   private renderEmail(): void {
+    if (PreviewPanelService.isDisposed() || this.isSettingProjectUp) return; //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
     try {
       const renderOutput = this.packageManagerService.renderEmail(this.projectPath.fsPath);
       LoggingService.log(`Successfully executed render email script.`);
