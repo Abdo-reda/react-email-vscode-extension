@@ -1,26 +1,28 @@
 import { ExtensionConfigurations } from "../constants/configurationEnum";
-import { getActiveDocument, getConfiguration, isConfigurationChanged, runCommandInBackground, showErrorMessage, showInfoMessage, updateConfiguration } from "../utilities/vscodeUtilities";
+import { getActiveDocument, showErrorMessage, showInfoMessage, updateConfiguration } from "../utilities/vscodeUtilities";
 import * as vscode from "vscode";
 import * as path from "path";
 import { LoggingService } from "./loggingService";
 import { StatusBarService } from "./statusBarService";
 import { IPackageManagerService } from "../interfaces/packageManagerServiceInterface";
-import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { PackagesEnum } from "../constants/packagesEnum";
 import { PackageManagerServiceFactory } from "./packageManagers/packageManagerServiceFactory";
 import { RENDER_EMAIL_SCRIPT } from "../constants/renderScriptConstant";
-import { IRenderEmail } from "../interfaces/renderEmailOutput";
 import { PreviewPanelService } from "./previewPanelService";
+import { PackageManagerEnum } from "../constants/packageManagerEnum";
+import { RenderOnEnum } from "../constants/renderOnEnum";
+import { IExtensionConfiguration } from "../interfaces/extensionConfigurationInterface";
 
 export class ReactEmailService {
-  private encoder = new TextEncoder(); 
+  private encoder = new TextEncoder();
 
   private reactEmailVersion = "latest";
   private storagePath: vscode.Uri = vscode.Uri.file("");
-  private statusBarService!: StatusBarService;
+  private extensionConfiguration!: IExtensionConfiguration;
 
-  private packageManager = PackageManagerEnum.NPM;
+  private statusBarService!: StatusBarService;
   private packageManagerService!: IPackageManagerService;
+  // private packageManager = PackageManagerEnum.NPM;
   // private serverPort: number = 7777;
   // private serverTerminalShow: boolean = false;
   // private serverTerminalColor: string = "terminal.ansiCyan";
@@ -30,26 +32,38 @@ export class ReactEmailService {
     this.onCommandSuccess = this.onCommandSuccess.bind(this);
   }
 
-  async initExtension(context: vscode.ExtensionContext): Promise<void> {
+  async initExtension(context: vscode.ExtensionContext, extensionConfiguration: IExtensionConfiguration): Promise<void> {
     LoggingService.log("Initialising react-email ...");
     this.storagePath = context.extensionUri;
-    this.setupConfigurations();
-    this.switchPackageManagerService();
-    const disposables = this.setupFileChangesListener();
+    this.extensionConfiguration = extensionConfiguration;
+    this.switchPackageManagerService(this.extensionConfiguration.packageManager);
+    this.setupFileChangesListener(context);
+    this.setupOnChangeActiveDocumentListener(context);
+  }
+
+  updateExtensionConfiguration(newConfiguration: IExtensionConfiguration): void {
+    if (this.extensionConfiguration.packageManager !== newConfiguration.packageManager) {
+      this.switchPackageManagerService(newConfiguration.packageManager);
+    }
+    this.extensionConfiguration = newConfiguration;
+  }
+
+  private setupOnChangeActiveDocumentListener(context: vscode.ExtensionContext) {
+    const disposable = vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (!editor) return;
+      const document = editor.document;
+      if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
+      LoggingService.log(`Rendering Active file ${document.fileName}`);
+      this.updateAndRenderEmail(document);
+    });
+    context.subscriptions.push(disposable);
+  }
+
+  private setupFileChangesListener(context: vscode.ExtensionContext): void {
+    const disposables: vscode.Disposable[] = [];
+    disposables.push(this.setupOnChangeListener());
+    disposables.push(this.setupOnSaveListener());
     context.subscriptions.push(...disposables);
-  }
-
-  analyseActiveDocument() {
-    const activeDocument = getActiveDocument();
-    if (!activeDocument) return;
-    this.analyseDocument(activeDocument);
-  }
-
-  private analysePath(analysisPath: string) {
-    const dir = path.dirname(analysisPath);
-    const base = path.basename(analysisPath);
-    LoggingService.log(`Analysing ${dir} ${base}`);
-    // runCommandInBackground(`command`, this.onCommandError, this.onCommandSuccess, dir);
   }
 
   private onCommandError(output: string) {
@@ -58,52 +72,9 @@ export class ReactEmailService {
     this.statusBarService.setErrorState();
   }
 
-  private setupFileChangesListener(): vscode.Disposable[] {
-    const disposables: vscode.Disposable[] = [];
-    // disposables.push(this.setupOnChangeListener());
-    disposables.push(this.setupOnSaveListener());
-    return disposables;
-  }
-
-  private analyseDocument(document: vscode.TextDocument) {
-    this.statusBarService.setLoadingState();
-
-    const documentURI = document.uri;
-    const workspace = vscode.workspace.getWorkspaceFolder(documentURI);
-
-    // if (this.analysisScope === AnalysisScope.FILE) {
-    //   LoggingService.log("Analysing File Scope");
-    //   this.analysePath(documentURI.fsPath);
-    // } else if (this.analysisScope === AnalysisScope.DIRECTORY || !workspace) {
-    //   LoggingService.log("Analysing Directory Scope");
-    //   this.analysePath(vscode.Uri.joinPath(documentURI, '..').fsPath);
-    // } else if (this.analysisScope === AnalysisScope.WORKSPACE && workspace) {
-    //   LoggingService.log("Analysing Workspace Scope");
-    //   this.analysePath(workspace.uri.fsPath);
-    // }
-  }
-
   private onCommandSuccess(_: string) {
     LoggingService.log(`Analysis completed successfully.`);
     this.statusBarService.setSuccessState();
-  }
-
-  private setupConfigurations() {
-    this.reactEmailVersion = getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? "latest";
-    this.packageManager = getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM;
-
-    //TODO: there is an issue with this !!!!
-    return vscode.workspace.onDidChangeConfiguration((event) => {
-      if (isConfigurationChanged(event, ExtensionConfigurations.REACT_EMAIL_VERSION)) {
-        this.reactEmailVersion = getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? "latest";
-        LoggingService.log(`${ExtensionConfigurations.REACT_EMAIL_VERSION} Configuration Changed ${this.reactEmailVersion}!`);
-      }
-
-      if (isConfigurationChanged(event, ExtensionConfigurations.PACKAGE_MANAGER)) {
-        this.packageManager = getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM;
-        LoggingService.log(`${ExtensionConfigurations.PACKAGE_MANAGER} Configuration Changed ${this.packageManager}!`);
-      }
-    });
   }
 
   async chooseReactEmailVersion() {
@@ -120,24 +91,26 @@ export class ReactEmailService {
     LoggingService.log(`Updated react-email version to ${selectedVersion}`);
   }
 
-  private switchPackageManagerService(): void {
-    this.packageManagerService = PackageManagerServiceFactory.getService(this.packageManager);
+  switchPackageManagerService(packageManager: PackageManagerEnum): void {
+    this.packageManagerService = PackageManagerServiceFactory.getService(packageManager);
     this.initPackageManagerService();
   }
 
-  renderActiveFile() {
-    const document = vscode.window.activeTextEditor?.document;
+  renderActiveDocument() {
+    const document = getActiveDocument();
     if (!document) return;
-    if (document.languageId !== 'javascriptreact' && document.languageId !== 'typescriptreact') return;
+    if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
     LoggingService.log(`Rendering Active file ${document.fileName}`);
     this.updateAndRenderEmail(document);
   }
 
   private initPackageManagerService(): void {
-    LoggingService.log(`Checking Package Manager ${this.packageManager}`);
+    LoggingService.log(`Checking Package Manager ${this.extensionConfiguration.packageManager}`);
     const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
-      showErrorMessage(`Could not find a suitable package manager. The package manager ${this.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`);
+      showErrorMessage(
+        `Could not find a suitable package manager. The package manager ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
+      );
       return;
     }
     this.setupExternalProject();
@@ -149,9 +122,9 @@ export class ReactEmailService {
     //TODO: maybe show a loading message instead.
 
     //this.packageManagerService.setupProject()
-      //- if live -->
-      //- if not live -->
-    //npm exec -y -- degit Abdo-reda/react-email-render-template#main project 
+    //- if live -->
+    //- if not live -->
+    //npm exec -y -- degit Abdo-reda/react-email-render-template#main project
     this.packageManagerService.installPackages(
       //TODO: replace with configuration/setting
       [
@@ -167,30 +140,29 @@ export class ReactEmailService {
   }
 
   private setupExternalProjectDirectories() {
-    vscode.workspace.fs.writeFile(this.scriptFilePath,  this.encoder.encode(RENDER_EMAIL_SCRIPT));
+    vscode.workspace.fs.writeFile(this.scriptFilePath, this.encoder.encode(RENDER_EMAIL_SCRIPT));
     vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array());
     LoggingService.log(`Init Main Email file at ${this.mainEmailFilePath.fsPath}`);
   }
 
   private setupOnChangeListener() {
-    // LoggingService.log("Setting up OnChange Listener");
-    // const disposable = vscode.workspace.onDidChangeTextDocument(
-    //   (event) => {
-    //     if (this.analyseOn !== AnalysisOn.ON_CHANGE) return;
-    //     LoggingService.log(`file changed ${event.document.fileName}`);
-    //     this.analyseDocument(event.document);
-    //   }
-    // );
-    // return disposable;
+    LoggingService.log("Setting up OnChange Listener");
+    const disposable = vscode.workspace.onDidChangeTextDocument((event) => {
+      const document = event.document;
+      if (this.extensionConfiguration.renderOn !== RenderOnEnum.ON_CHANGE) return;
+      if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
+      LoggingService.log(`file changed ${event.document.fileName}`);
+      this.updateAndRenderEmail(document);
+    });
+    return disposable;
   }
 
   private setupOnSaveListener() {
     LoggingService.log("Setting up OnSave Listener");
-    //TODO: only if file is a tsx/jsx file ... fix later
     const disposable = vscode.workspace.onDidSaveTextDocument((document) => {
       LoggingService.log(`file saved ${document.fileName}`);
-      // if (this.analyseOn !== AnalysisOn.ON_SAVE) return;
-      if (document.languageId !== 'javascriptreact' && document.languageId !== 'typescriptreact') return;
+      if (this.extensionConfiguration.renderOn !== RenderOnEnum.ON_SAVE) return;
+      if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
       this.updateAndRenderEmail(document);
     });
     return disposable;
@@ -212,7 +184,7 @@ export class ReactEmailService {
       const renderOutput = this.packageManagerService.renderEmail(this.projectPath.fsPath);
       LoggingService.log(`Successfully executed render email script.`);
       PreviewPanelService.setPreviewState(renderOutput);
-    } catch(error) {
+    } catch (error) {
       LoggingService.warn("There was an error while rendering the email.");
       if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
     }

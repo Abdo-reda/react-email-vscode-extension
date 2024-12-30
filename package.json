@@ -78,11 +78,11 @@
         "react-email.renderOn": {
           "type": "string",
           "enum": [
-            "onSave",
-            "onChange"
+            "OnSave",
+            "OnChange"
           ],
           "default": "onSave",
-          "markdownDescription": "When should the email be rerendered and updated. `onSave` will refresh the email preview only when the active file is saved. `onChange` will refresh teh email preview on any change detected to the active file."
+          "markdownDescription": "When should the email be rerendered and updated. `onSave` will refresh the email preview only when the active file is saved. `onChange` will refresh the email preview on any change detected to the active file."
         },
         "react-email.server.port": {
           "type": "number",

@@ -3,5 +3,6 @@ export enum ExtensionConfigurations {
     SERVER_PORT = "server.port", 
     SERVER_TERMINAL_SHOW = "server.terminalShow", 
     SERVER_TERMINAL_COLOR = "server.terminalColor", 
-    PACKAGE_MANAGER = "packageManager"   
+    PACKAGE_MANAGER = "packageManager",
+    RENDER_ON = "renderOn"   
 }

@@ -16,7 +16,7 @@ export class PreviewPanelService {
 
   static init(context: vscode.ExtensionContext) {
     this.context = context;
-	this.setNoneState();
+    this.setNoneState();
   }
 
   static showOrCreatePanel(): void {
@@ -29,12 +29,12 @@ export class PreviewPanelService {
   }
 
   static setEmailTitle(title: string): void {
-	this.panelStateInfo.emailTitle = title;
+    this.panelStateInfo.emailTitle = title;
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
     this.panelState = PreviewPanelStateEnum.PREVIEW;
-	this.panelStateInfo.emailOutput = emailOutput;
+    this.panelStateInfo.emailOutput = emailOutput;
     this.refreshPanel();
   }
 
@@ -45,20 +45,20 @@ export class PreviewPanelService {
 
   static setErrorState(errors: string): void {
     this.panelState = PreviewPanelStateEnum.ERROR;
-	this.panelStateInfo.emailErrors = errors;
+    this.panelStateInfo.emailErrors = errors;
     this.refreshPanel();
   }
 
   static setNoneState(): void {
     this.panelState = PreviewPanelStateEnum.NONE;
-	this.panelStateInfo = {
-		emailErrors: '',
-		emailOutput: {
-			html: '',
-			text: '',
-		},
-		emailTitle: '',
-	};
+    this.panelStateInfo = {
+      emailErrors: "",
+      emailOutput: {
+        html: "",
+        text: "",
+      },
+      emailTitle: "",
+    };
     this.refreshPanel();
   }
 

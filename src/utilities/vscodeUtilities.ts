@@ -161,9 +161,7 @@ export function getActiveDirectory(): string | undefined {
 }
 
 export function getActiveDocument(): vscode.TextDocument|undefined {
-
-  const activeEditor = vscode.window.activeTextEditor;
-  return activeEditor?.document;
+  return vscode.window.activeTextEditor?.document;
 }
 
 export function showInfoMessage(msg: string): void {
