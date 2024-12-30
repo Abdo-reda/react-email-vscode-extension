@@ -113,7 +113,7 @@ export function runCommandInBackground(
   errorCallback: (output: string) => void = () => {},
   successCallback: (output: string) => void = () => {},
 ) {
-  LoggingService.log(`Running command '${command}'`);
+  LoggingService.log(`Running command '${command}' at path ${workingDirectory ?? 'default'}`);
   exec(command, { cwd: workingDirectory }, (error, stdout, stderr) => {
     if (error) {
       errorCallback(stdout);
@@ -131,14 +131,15 @@ export function runCommandSync(
   command: string,
   workingDirectory: string | undefined = undefined
 ): string {
-  LoggingService.log(`Running command '${command}' at path ${workingDirectory}`);
+  LoggingService.log(`Running command '${command}' at path ${workingDirectory ?? 'default'}`);
   try {
     const output = execSync(command, { cwd: workingDirectory, encoding: "utf-8" });
     return output;
-  } catch (error) {
-    if (error instanceof Error && "stdout" in error) {
-      const output = error.stdout as string;
-      throw new Error(output);
+  } catch (error: any) {
+    if ("stdout" in error && error.stdout) {
+      throw new Error(error.stdout); //TODO: maybe make a custom error object.
+    } else if ("stderr" in error) {
+      throw new Error(error.stderr);
     }
     throw error;
   }

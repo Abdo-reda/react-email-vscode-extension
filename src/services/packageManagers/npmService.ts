@@ -1,5 +1,9 @@
 import * as vscode from "vscode";
-import { runCommandInBackground, runCommandSync, spawnProcess } from "../../utilities/vscodeUtilities";
+import {
+  runCommandInBackground,
+  runCommandSync,
+  spawnProcess,
+} from "../../utilities/vscodeUtilities";
 import { LoggingService } from "../loggingService";
 import { BasePackageManagerService } from "./basePackageManagerService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
@@ -20,30 +24,26 @@ export class NpmService extends BasePackageManagerService {
   }
 
   renderEmail(cwd: string | undefined): IRenderEmail {
-    try {
-      const output = runCommandSync("npm exec -y -- tsx script", cwd); //TODO: what happens if its onChange file? too many run command syncs?
-      LoggingService.log(`Successfully executed render email script.`);
-      const parsedOutput = output.match(this.scriptOutputRegex)!; //TODO: fix this regex, not working for text. fuck chatgpt.
-
-      const renderOutput = {
-        html: parsedOutput[1],
-        text: parsedOutput[2],
-      };
-      return renderOutput;
-    } catch (error) {
-      LoggingService.warn("There was an error while rendering the email.");
-      return { //TODO: should we return the last successfull email?
-        html: '',
-        text: '',
-      }
-    }
+    const output = runCommandSync("npm exec -y -- tsx script", cwd); //TODO: what happens if its onChange file? too many run command syncs?
+    const parsedOutput = JSON.parse(output) as IRenderEmail;
+    return parsedOutput;
   }
 
-  installPackages(packages: ISimplePackage[], cwd: string | undefined, errorCallback: (output: string) => void = () => {}, successCallback: (output: string) => void = () => {}): void {
+  installPackages(
+    packages: ISimplePackage[],
+    cwd: string | undefined,
+    errorCallback: (output: string) => void = () => {},
+    successCallback: (output: string) => void = () => {}
+  ): void {
     const packageCommand = packages.reduce((prev, cur) => {
       return `${prev} ${cur.name}@${cur.version}`;
     }, "");
-    runCommandInBackground(`npm install --prefix ./ ${packageCommand} -E`, cwd, errorCallback, successCallback);
+    runCommandInBackground(
+      `npm install --prefix ./ ${packageCommand} -E`,
+      cwd,
+      errorCallback,
+      successCallback
+    );
   }
 
   downloadPackage(name: string, version: string): boolean {
@@ -54,7 +54,7 @@ export class NpmService extends BasePackageManagerService {
       return false;
     }
   }
-  
+
   // runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
   //   LoggingService.log(`Spawning npm Email Server Process Terminal 'npm exec -- react-email dev --port ${port}'`);
   //   this.emailServerTerminal = vscode.window.createTerminal({

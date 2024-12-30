@@ -10,6 +10,7 @@ import { PackagesEnum } from "../constants/packagesEnum";
 import { PackageManagerServiceFactory } from "./packageManagers/packageManagerServiceFactory";
 import { RENDER_EMAIL_SCRIPT } from "../constants/renderScriptConstant";
 import { IRenderEmail } from "../interfaces/renderEmailOutput";
+import { PreviewPanelService } from "./previewPanelService";
 
 export class ReactEmailService {
   private encoder = new TextEncoder(); 
@@ -124,8 +125,12 @@ export class ReactEmailService {
     this.initPackageManagerService();
   }
 
-  renderEmail(): IRenderEmail {
-    return this.packageManagerService.renderEmail(this.projectPath.fsPath);
+  renderActiveFile() {
+    const document = vscode.window.activeTextEditor?.document;
+    if (!document) return;
+    if (document.languageId !== 'javascriptreact' && document.languageId !== 'typescriptreact') return;
+    LoggingService.log(`Rendering Active file ${document.fileName}`);
+    this.updateAndRenderEmail(document);
   }
 
   private initPackageManagerService(): void {
@@ -156,7 +161,7 @@ export class ReactEmailService {
         { name: PackagesEnum.REACT_DOM, version: "latest" },
       ],
       this.projectPath.fsPath,
-      () => showErrorMessage("There was an error setting up the external project for react-email. Please check Logs."),
+      () => showErrorMessage("There was an error setting up the external project for react-email. Please check Logs"),
       () => showInfoMessage("Succesfully setup external project for react-email")
     );
   }
@@ -183,17 +188,34 @@ export class ReactEmailService {
     LoggingService.log("Setting up OnSave Listener");
     //TODO: only if file is a tsx/jsx file ... fix later
     const disposable = vscode.workspace.onDidSaveTextDocument((document) => {
+      LoggingService.log(`file saved ${document.fileName}`);
       // if (this.analyseOn !== AnalysisOn.ON_SAVE) return;
       if (document.languageId !== 'javascriptreact' && document.languageId !== 'typescriptreact') return;
-      LoggingService.log(`file saved ${document.fileName}`);
-      this.updateMainEmail(document);
+      this.updateAndRenderEmail(document);
     });
     return disposable;
   }
 
-  private updateMainEmail(document: vscode.TextDocument) {
+  private updateAndRenderEmail(document: vscode.TextDocument): void {
+    this.updateMainEmail(document);
+    this.renderEmail();
+  }
+
+  private updateMainEmail(document: vscode.TextDocument): void {
+    PreviewPanelService.setEmailTitle(path.basename(document.fileName));
     const text = document.getText();
     vscode.workspace.fs.writeFile(this.mainEmailFilePath, this.encoder.encode(text));
+  }
+
+  private renderEmail(): void {
+    try {
+      const renderOutput = this.packageManagerService.renderEmail(this.projectPath.fsPath);
+      LoggingService.log(`Successfully executed render email script.`);
+      PreviewPanelService.setPreviewState(renderOutput);
+    } catch(error) {
+      LoggingService.warn("There was an error while rendering the email.");
+      if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
+    }
   }
 
   get scriptFilePath() {
