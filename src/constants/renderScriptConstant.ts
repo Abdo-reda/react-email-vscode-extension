@@ -2,7 +2,7 @@ export const RENDER_EMAIL_SCRIPT = `
 const EmailComponent = require('./email');
 const { render } = require('@react-email/render');
 const { createElement } = require('react');
-const emailElement = createElement(EmailComponent.default, EmailComponent.default?.PreviewProps);
+const emailElement = createElement(EmailComponent.default, EmailComponent.PreviewProps);
 Promise.all([
   render(emailElement),
   render(emailElement, { plainText: true })
