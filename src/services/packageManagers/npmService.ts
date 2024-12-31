@@ -24,6 +24,7 @@ export class NpmService extends BasePackageManagerService {
   }
 
   renderEmail(cwd: string | undefined): IRenderEmail {
+    //TODO: use watch instead, then we won't have to run it every time,
     const output = runCommandSync("npm exec -y -- tsx script", cwd); //TODO: what happens if its onChange file? too many run command syncs?
     const parsedOutput = JSON.parse(output) as IRenderEmail;
     return parsedOutput;

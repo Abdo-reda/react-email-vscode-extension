@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //NOW:
+//- implemenet the watch tsx approach.
 //- implement vite server approach
 //- see into implementing a status bar
 //- see into implement the toolbar.

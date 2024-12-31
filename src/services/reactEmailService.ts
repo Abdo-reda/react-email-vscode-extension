@@ -67,6 +67,7 @@ export class ReactEmailService {
     this.statusBarService.setSuccessState();
   }
 
+  //TODO: make this more generic
   async chooseReactEmailVersion() {
     const versions = await this.packageManagerService.getPackageVersions(PackagesEnum.REACT_EMAIL);
 
@@ -77,7 +78,7 @@ export class ReactEmailService {
 
     if (!selectedVersion) return;
 
-    await updateConfiguration(ExtensionConfigurations.REACT_EMAIL_VERSION, selectedVersion, vscode.ConfigurationTarget.Workspace); //TODO: should this be based on the workspace
+    await updateConfiguration(ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION, selectedVersion, vscode.ConfigurationTarget.Workspace); //TODO: should this be based on the workspace
     LoggingService.log(`Updated react-email version to ${selectedVersion}`);
   }
 

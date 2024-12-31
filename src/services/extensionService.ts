@@ -16,7 +16,7 @@ export class ExtensionService {
     packageManager: PackageManagerEnum.NPM,
     renderOn: RenderOnEnum.ON_SAVE,
     packages: {
-      reactEmailVersion: "latest"
+      reactEmailRenderVersion: "latest"
     }
   };
 
@@ -36,7 +36,7 @@ export class ExtensionService {
       renderOn: getConfiguration<RenderOnEnum>(ExtensionConfigurations.RENDER_ON) ?? RenderOnEnum.ON_SAVE,
       packageManager: getConfiguration<PackageManagerEnum>(ExtensionConfigurations.PACKAGE_MANAGER) ?? PackageManagerEnum.NPM,
       packages: {
-        reactEmailVersion: getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? 'latest'
+        reactEmailRenderVersion: getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? 'latest'
       }
     };
 
