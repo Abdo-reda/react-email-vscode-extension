@@ -42,12 +42,12 @@
     "commands": [
       {
         "command": "react-email.preview",
-        "title": "Open Preview Tab",
+        "title": "React Email: Preview Email",
         "icon": "$(heart)"
       },
       {
-        "command": "react-email.selectRenderVersion",
-        "title": "Select @react-email/render Version.",
+        "command": "react-email.selectPackageVersion",
+        "title": "React Email: Update Package Version Configuration",
         "icon": "$(versions)"
       }
     ],
@@ -118,7 +118,7 @@
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/render?activeTab=versions) of `@react-email/render` used.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/render?activeTab=versions) of `@react-email/render` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
         },
         "react-email.packages.reactEmailComponentsVersion": {
           "type": "string",
@@ -126,7 +126,7 @@
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/components?activeTab=versions) of `@react-email/components` used.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/components?activeTab=versions) of `@react-email/components` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
         },
         "react-email.packages.reactVersion": {
           "type": "string",
@@ -134,7 +134,7 @@
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/react?activeTab=versions) of `react` used.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/react?activeTab=versions) of `react` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
         },
         "react-email.packages.reactDomVersion": {
           "type": "string",
@@ -142,7 +142,7 @@
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/react-dom?activeTab=versions) of `react-dom` used.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/react-dom?activeTab=versions) of `react-dom` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
         },
         "react-email.server.port": {
           "type": "number",

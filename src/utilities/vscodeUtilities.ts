@@ -120,8 +120,7 @@ export function runCommandInBackground(
       return;
     }
     if (stderr) {
-      vscode.window.showWarningMessage(`Warning: ${stderr}`);
-      return;
+      showWarningMessage(stderr);
     }
     successCallback(stdout);
   });
@@ -165,13 +164,13 @@ export function getActiveDocument(): vscode.TextDocument|undefined {
 }
 
 export function showInfoMessage(msg: string): void {
-  vscode.window.showInformationMessage(`${msg}!`);
+  vscode.window.showInformationMessage(`${msg}`);
 }
 
 export function showWarningMessage(msg: string): void {
-  vscode.window.showWarningMessage(`${msg}!`);
+  vscode.window.showWarningMessage(`${msg}`);
 }
 
 export function showErrorMessage(msg: string): void {
-  vscode.window.showErrorMessage(`${msg}!`);
+  vscode.window.showErrorMessage(`${msg}`);
 }

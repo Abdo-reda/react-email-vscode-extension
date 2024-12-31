@@ -81,9 +81,9 @@ export class PreviewPanelService {
         preserveFocus: true,
       },
       {
-        enableScripts: false,
+        enableScripts: true,
         localResourceRoots: [],
-      }
+      },
     );
 
     // panel.iconPath = vscode.Uri.file(context.asAbsolutePath('resources/loading.png'));

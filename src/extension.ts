@@ -8,7 +8,7 @@ import { ExtensionService } from "./services/extensionService";
 //- see into implement the toolbar.
 //- optimize render script somehow.
 //- loading indicator.
-//- sometimes it doesn't work.
+//- sometimes it does not work lol :)
 
 //---- Tab feature:
 //- the tab title is filename[preview]
@@ -26,7 +26,6 @@ import { ExtensionService } from "./services/extensionService";
 //TODO:
 //--- Make sure that the server runs after installation is complete ... I think ...
 //--- Fix the order of the configuration
-//--- we can't disable things for now, so we will have to manually show warnings and update the setting for the user.
 //--- make the status bar service a signleton maybe ...
 //--- Warnings from npm??
 
@@ -43,11 +42,10 @@ import { ExtensionService } from "./services/extensionService";
 //- in case local, the version settings should be disabled.
 //- 4 version settings, for each package. (react, react-dom, react-mail-components, react-mail)
 //- live server or automatic render
-//- terminal.
-//- color.
 //- showbydefualt (boolean)
 
 //--- Enhacnements.
+//- Support DENO (enviornment, node or deno or bun)
 //- MORE THAN ONE EMAIL AT THE SAME TIME.
 //- support different emails at the same time. (will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any)
 //- support multiple project with different dependencies (external projects) ... somehow.

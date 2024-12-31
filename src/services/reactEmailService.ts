@@ -1,4 +1,3 @@
-import { ExtensionConfigurations } from "../constants/configurationEnum";
 import { getActiveDocument, showErrorMessage, showInfoMessage, updateConfiguration } from "../utilities/vscodeUtilities";
 import * as vscode from "vscode";
 import * as path from "path";
@@ -12,16 +11,16 @@ import { PreviewPanelService } from "./previewPanelService";
 import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { RenderOnEnum } from "../constants/renderOnEnum";
 import { IExtensionConfiguration } from "../interfaces/extensionConfigurationInterface";
+import { RenderApproachEnum } from "../constants/renderApproachEnum";
+import { getServerWebviewContent } from "../constants/previewWebviewConstant";
 
 export class ReactEmailService {
   private encoder = new TextEncoder();
   private isSettingProjectUp = false;
 
-  private reactEmailVersion = "latest";
   private storagePath: vscode.Uri = vscode.Uri.file("");
   private extensionConfiguration!: IExtensionConfiguration;
 
-  private statusBarService!: StatusBarService;
   private packageManagerService!: IPackageManagerService;
   // private packageManager = PackageManagerEnum.NPM;
   // private serverPort: number = 7777;
@@ -29,8 +28,7 @@ export class ReactEmailService {
   // private serverTerminalColor: string = "terminal.ansiCyan";
 
   constructor() {
-    this.onCommandError = this.onCommandError.bind(this);
-    this.onCommandSuccess = this.onCommandSuccess.bind(this);
+    this.installProjectPackages = this.installProjectPackages.bind(this);
   }
 
   async initExtension(context: vscode.ExtensionContext, extensionConfiguration: IExtensionConfiguration): Promise<void> {
@@ -48,43 +46,8 @@ export class ReactEmailService {
     this.extensionConfiguration = newConfiguration;
   }
 
-  private setupFileChangesListener(context: vscode.ExtensionContext): void {
-    const disposables: vscode.Disposable[] = [];
-    disposables.push(this.setupOnChangeListener());
-    disposables.push(this.setupOnSaveListener());
-    disposables.push(this.setupOnChangeActiveDocumentListener());
-    context.subscriptions.push(...disposables);
-  }
-
-  private onCommandError(output: string) {
-    const errorOutput = JSON.parse(output);
-    LoggingService.log("Analysis Output", errorOutput);
-    this.statusBarService.setErrorState();
-  }
-
-  private onCommandSuccess(_: string) {
-    LoggingService.log(`Analysis completed successfully.`);
-    this.statusBarService.setSuccessState();
-  }
-
-  //TODO: make this more generic
-  async chooseReactEmailVersion() {
-    const versions = await this.packageManagerService.getPackageVersions(PackagesEnum.REACT_EMAIL);
-
-    const selectedVersion = await vscode.window.showQuickPick(["latest", ...versions], {
-      placeHolder: `Current version: ${this.reactEmailVersion}`,
-      title: "Select the version to use",
-    });
-
-    if (!selectedVersion) return;
-
-    await updateConfiguration(ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION, selectedVersion, vscode.ConfigurationTarget.Workspace); //TODO: should this be based on the workspace
-    LoggingService.log(`Updated react-email version to ${selectedVersion}`);
-  }
-
-  switchPackageManagerService(packageManager: PackageManagerEnum): void {
-    this.packageManagerService = PackageManagerServiceFactory.getService(packageManager);
-    this.initPackageManagerService();
+  getPackageVersions(packageName: PackagesEnum) {
+    return this.packageManagerService.getPackageVersions(packageName);
   }
 
   renderActiveDocument() {
@@ -93,6 +56,19 @@ export class ReactEmailService {
     if (document.languageId !== "javascriptreact" && document.languageId !== "typescriptreact") return;
     LoggingService.log(`Rendering Active file ${document.fileName}`);
     this.updateAndRenderEmail(document);
+  }
+
+  private switchPackageManagerService(packageManager: PackageManagerEnum): void {
+    this.packageManagerService = PackageManagerServiceFactory.getService(packageManager);
+    this.initPackageManagerService();
+  }
+
+  private setupFileChangesListener(context: vscode.ExtensionContext): void {
+    const disposables: vscode.Disposable[] = [];
+    disposables.push(this.setupOnChangeListener());
+    disposables.push(this.setupOnSaveListener());
+    disposables.push(this.setupOnChangeActiveDocumentListener());
+    context.subscriptions.push(...disposables);
   }
 
   private initPackageManagerService(): void {
@@ -105,17 +81,33 @@ export class ReactEmailService {
     this.setupExternalProject();
   }
 
-  private setupExternalProject() {
+  private async setupExternalProject() {
+    LoggingService.log(`Setting up external project '${this.extensionConfiguration.renderApproach}' approach`);
     this.isSettingProjectUp = true;
     PreviewPanelService.setLoadingState();
-    // if live server
-    this.setupExternalProjectDirectories();
-    //TODO: maybe show a loading message instead.
 
-    //this.packageManagerService.setupProject()
-    //- if live -->
-    //- if not live -->
-    //npm exec -y -- degit Abdo-reda/react-email-render-template#main project
+    if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SCRIPT) {
+      this.settingUpScriptProject(this.installProjectPackages);
+    } else if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SERVER) {
+      this.settingUpServerProject(this.installProjectPackages);
+    }
+
+    LoggingService.log(`Main Email file at ${this.mainEmailFilePath.fsPath}`);
+  }
+
+  private settingUpServerProject(onFinish: () => void) {
+    this.packageManagerService.setupServerProject(this.storagePath.fsPath, () => LoggingService.warn("There was an error setting up the server project"), onFinish);
+  }
+
+  private settingUpScriptProject(onFinish: () => void) {
+    Promise.all([vscode.workspace.fs.writeFile(this.scriptFilePath, this.encoder.encode(RENDER_EMAIL_SCRIPT)), vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array())])
+      .then(onFinish)
+      .catch(() => LoggingService.warn("There was an error setting up the script project"));
+  }
+
+  private installProjectPackages() {
+    LoggingService.log("Installing Packages in external project");
+
     this.packageManagerService.installPackages(
       //TODO: replace with configuration/setting
       [
@@ -137,12 +129,6 @@ export class ReactEmailService {
         this.renderEmail();
       }
     );
-  }
-
-  private setupExternalProjectDirectories() {
-    vscode.workspace.fs.writeFile(this.scriptFilePath, this.encoder.encode(RENDER_EMAIL_SCRIPT));
-    vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array());
-    LoggingService.log(`Init Main Email file at ${this.mainEmailFilePath.fsPath}`);
   }
 
   private setupOnChangeListener() {
@@ -192,6 +178,15 @@ export class ReactEmailService {
 
   private renderEmail(): void {
     if (PreviewPanelService.isDisposed() || this.isSettingProjectUp) return; //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
+
+    if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SCRIPT) {
+      this.handleRenderEmailScript();
+    } else if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SERVER) {
+      this.handleRenderEmailServer();
+    }
+  }
+
+  private handleRenderEmailScript(): void {
     try {
       const renderOutput = this.packageManagerService.renderEmail(this.projectPath.fsPath);
       LoggingService.log(`Successfully executed render email script.`);
@@ -200,6 +195,22 @@ export class ReactEmailService {
       LoggingService.warn("There was an error while rendering the email.");
       if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
     }
+  }
+
+  private handleRenderEmailServer(): void {
+    if (!this.packageManagerService.isServerRunning()) {
+      this.packageManagerService.runEmailServer(
+        this.extensionConfiguration.server.port, 
+        this.projectPath, 
+        this.extensionConfiguration.server.terminalVisibility, 
+        new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor)
+      );
+    }
+
+    PreviewPanelService.setPreviewState({
+      text: "N/A",
+      html: getServerWebviewContent(this.extensionConfiguration.server.port),
+    });
   }
 
   get scriptFilePath() {

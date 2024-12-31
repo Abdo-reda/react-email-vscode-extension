@@ -43,9 +43,8 @@ export function getLoadingWebviewContent() {
 `;
 }
 
-
 export function getNoneWebviewContent() {
-    return `
+  return `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -60,11 +59,10 @@ export function getNoneWebviewContent() {
   </body>
   </html>
   `;
-  }
+}
 
-  
-  export function getErrorWebviewContent(error: string) {
-    return `
+export function getErrorWebviewContent(error: string) {
+  return `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -79,5 +77,22 @@ export function getNoneWebviewContent() {
   </body>
   </html>
   `;
-  }
-  
+}
+
+export function getServerWebviewContent(port: number) {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body { margin: auto; padding: 0; }
+        </style>
+    </head>
+    <body>
+       <iframe src="http://localhost:${port}" style="border: none; width: 100%; height: 100vh;" sandbox="allow-scripts allow-same-origin"></iframe>
+    </body>
+    </html>
+    `;
+}
