@@ -6,9 +6,10 @@ import { LoggingService } from "../services/loggingService";
 const config = vscode.workspace.getConfiguration("react-email");
 
 export function getConfiguration<T>(
-  configuration: ExtensionConfigurations
-): T | undefined {
-  return config.get<T>(configuration);
+  configuration: ExtensionConfigurations,
+  defaultValue: T
+): T {
+  return config.get<T>(configuration, defaultValue);
 }
 
 export async function updateConfiguration(
@@ -102,6 +103,10 @@ export function spawnProcess(
 
   process.on('disconnect', () => {
     console.log('--- child process disconnected');
+  });
+
+  process.stdout?.on('data', (data: string) => {
+    console.log('--- child process stdout', data);
   });
 
   return process;

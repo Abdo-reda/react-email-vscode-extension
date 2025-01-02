@@ -1,16 +1,19 @@
-import { Terminal } from "vscode";
 import * as vscode from "vscode";
+import { Terminal } from "vscode";
 import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { ISimplePackage } from "./simplePackageInterface";
-import { IRenderEmail } from "./renderEmailOutput";
+import { ChildProcess } from "child_process";
 
 export interface IPackageManagerService {
   packageManager: PackageManagerEnum;
-  emailServerTerminal: Terminal | undefined;
+  emailServerTerminal: Terminal|undefined;
+  emailRenderScriptProcess: ChildProcess|undefined;
+
   checkInstalled: () => boolean;
 
   setupServerProject: (cwd: string | undefined, errorCallback: (output: string) => void, successCallback: (output: string) => void) => void;
-  renderEmail: (cwd: string | undefined) => IRenderEmail;
+  startRenderScript: (cwd: string | undefined) => void;
+  killRenderScript: () => void;
 
   isServerRunning: () => boolean;
   runEmailServer: (port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) => void;

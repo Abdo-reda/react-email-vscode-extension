@@ -8,7 +8,6 @@ import { LoggingService } from "../loggingService";
 import { BasePackageManagerService } from "./basePackageManagerService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
 import { ISimplePackage } from "../../interfaces/simplePackageInterface";
-import { IRenderEmail } from "../../interfaces/renderEmailOutput";
 
 export class NpmService extends BasePackageManagerService {
   packageManager = PackageManagerEnum.NPM;
@@ -36,11 +35,10 @@ export class NpmService extends BasePackageManagerService {
     );
   }
 
-  renderEmail(cwd: string | undefined): IRenderEmail {
-    //TODO: use watch instead, then we won't have to run it every time,
-    const output = runCommandSync("npm exec -y -- tsx script", cwd); //TODO: what happens if its onChange file? too many run command syncs?
-    const parsedOutput = JSON.parse(output) as IRenderEmail;
-    return parsedOutput;
+  startRenderScript(cwd: string | undefined): void {
+    this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd);
+    // const parsedOutput = JSON.parse(output) as IRenderEmail;
+    // return parsedOutput;
   }
 
   installPackages(

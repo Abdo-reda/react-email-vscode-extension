@@ -3,7 +3,6 @@ import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { RenderApproachEnum } from "../constants/renderApproachEnum";
 import { RenderOnEnum } from "../constants/renderOnEnum";
 
-
 export interface IExtensionConfiguration {
 	renderApproach: RenderApproachEnum;
 	dependencies: DependenciesEnum;

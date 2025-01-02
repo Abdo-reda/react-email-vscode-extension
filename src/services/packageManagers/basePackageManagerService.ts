@@ -5,15 +5,16 @@ import { LoggingService } from "../loggingService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
 import { ISimplePackage } from "../../interfaces/simplePackageInterface";
 import { IRenderEmail } from "../../interfaces/renderEmailOutput";
+import { ChildProcess } from "child_process";
 
 export abstract class BasePackageManagerService implements IPackageManagerService {
-  emailServerTerminal: vscode.Terminal | undefined;
   abstract packageManager: PackageManagerEnum;
   private packageVersions = new Map<string, string[]>(); //TODO: cache in global state or something
-  protected scriptOutputRegex = /\[HTML\]:(.*?)\[TEXT\]:(.*)/;
+  emailRenderScriptProcess: ChildProcess | undefined;
+  emailServerTerminal: vscode.Terminal | undefined;
 
   /**
-   * Retrieves the package metadata from npm.
+   * Retrieves the package metadata from npm registry. Does not depend on package manager, they all reference the same registry.
    * [Reference](https://github.com/npm/registry/blob/main/docs/responses/package-metadata.md).
    */
   async getPackageVersions(name: string): Promise<string[]> {
@@ -49,7 +50,19 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
   }
   
   abstract setupServerProject(_cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
-  abstract renderEmail(cwd: string | undefined): IRenderEmail;
+
+  killRenderScript():void {
+    if (!this.emailRenderScriptProcess) return;
+    const result = this.emailRenderScriptProcess.kill();
+    if (!result) {
+      LoggingService.warn("There was an error killing the render script process.");
+      return;
+    }
+    LoggingService.log("Killed render script process successffully.");
+    this.emailRenderScriptProcess = undefined;
+  }
+
+  abstract startRenderScript(cwd: string | undefined): void;
   abstract checkInstalled(): boolean;
   abstract installPackages(_packages: ISimplePackage[], _cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
   abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;

@@ -75,7 +75,9 @@ export class ReactEmailService {
     LoggingService.log(`Checking Package Manager ${this.extensionConfiguration.packageManager}`);
     const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
-      showErrorMessage(`Could not find a suitable package manager. ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`);
+      showErrorMessage(
+        `Could not find a suitable package manager. ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
+      );
       return;
     }
     this.setupExternalProject();
@@ -96,11 +98,18 @@ export class ReactEmailService {
   }
 
   private settingUpServerProject(onFinish: () => void) {
-    this.packageManagerService.setupServerProject(this.storagePath.fsPath, () => LoggingService.warn("There was an error setting up the server project"), onFinish);
+    this.packageManagerService.setupServerProject(
+      this.storagePath.fsPath,
+      () => LoggingService.warn("There was an error setting up the server project"),
+      onFinish
+    );
   }
 
   private settingUpScriptProject(onFinish: () => void) {
-    Promise.all([vscode.workspace.fs.writeFile(this.scriptFilePath, this.encoder.encode(RENDER_EMAIL_SCRIPT)), vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array())])
+    Promise.all([
+      vscode.workspace.fs.writeFile(this.scriptFilePath, this.encoder.encode(RENDER_EMAIL_SCRIPT)),
+      vscode.workspace.fs.writeFile(this.mainEmailFilePath, new Uint8Array()),
+    ])
       .then(onFinish)
       .catch(() => LoggingService.warn("There was an error setting up the script project"));
   }
@@ -180,15 +189,15 @@ export class ReactEmailService {
     if (PreviewPanelService.isDisposed() || this.isSettingProjectUp) return; //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
 
     if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SCRIPT) {
-      this.handleRenderEmailScript();
+      this.handleScriptEmailRender();
     } else if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SERVER) {
-      this.handleRenderEmailServer();
+      this.handleServerEmailRender();
     }
   }
 
-  private handleRenderEmailScript(): void {
+  private handleScriptEmailRender(): void {
     try {
-      const renderOutput = this.packageManagerService.renderEmail(this.projectPath.fsPath);
+      const renderOutput = this.packageManagerService.startRenderScript(this.projectPath.fsPath);
       LoggingService.log(`Successfully executed render email script.`);
       PreviewPanelService.setPreviewState(renderOutput);
     } catch (error) {
@@ -197,15 +206,13 @@ export class ReactEmailService {
     }
   }
 
-  private handleRenderEmailServer(): void {
-    if (!this.packageManagerService.isServerRunning()) {
-      this.packageManagerService.runEmailServer(
-        this.extensionConfiguration.server.port, 
-        this.projectPath, 
-        this.extensionConfiguration.server.terminalVisibility, 
-        new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor)
-      );
-    }
+  private handleServerEmailRender(): void {
+    this.packageManagerService.runEmailServer(
+      this.extensionConfiguration.server.port,
+      this.projectPath,
+      this.extensionConfiguration.server.terminalVisibility,
+      new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor)
+    );
 
     PreviewPanelService.setPreviewState({
       text: "N/A",
