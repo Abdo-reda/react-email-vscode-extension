@@ -85,28 +85,15 @@ export function spawnProcess(
   workingDirectory: string | undefined = undefined, 
   errorCallback: (err: Error) => void = () => {},
 ): ChildProcess {
-  LoggingService.log(`Spawning a process with the command '${command}'`);
+  LoggingService.log(`Spawning a process with the command '${command}' at '${workingDirectory ?? 'default'}'`);
   const process = spawn(command, args, {
-    stdio: 'inherit', 
     shell: true,    
+    windowsHide: true,
     cwd: workingDirectory 
   });
 
   process.on('error', (err) => {
-    console.log('--- child process error', err);
     errorCallback(err);
-  });
-
-  process.on('close', (code) => {
-    console.log('--- child process close', code);
-  });
-
-  process.on('disconnect', () => {
-    console.log('--- child process disconnected');
-  });
-
-  process.stdout?.on('data', (data: string) => {
-    console.log('--- child process stdout', data);
   });
 
   return process;

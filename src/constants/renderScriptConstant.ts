@@ -1,4 +1,7 @@
+//TODO: fix the script
 export const RENDER_EMAIL_SCRIPT = `
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const EmailComponent = require('./email');
 const { render } = require('@react-email/render');
 const { createElement } = require('react');

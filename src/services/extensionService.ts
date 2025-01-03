@@ -2,18 +2,20 @@ import * as vscode from "vscode";
 import { LoggingService } from "./loggingService";
 import { ReactEmailService } from "./reactEmailService";
 import { PreviewPanelService } from "./previewPanelService";
-import { IExtensionConfiguration } from "../interfaces/extensionConfigurationInterface";
 import { ExtensionConfigurations, PACKAGE_CONFIGURATION_MAP } from "../constants/configurationEnum";
 import { getConfiguration, isConfigurationChanged, updateConfiguration } from "../utilities/vscodeUtilities";
-import { DEFAULT_CONFIGURATION, ExtensionConfiguration } from "../constants/configurationConstants";
+import { ExtensionConfigurationService } from "./extensionConfigurationService";
 import { PackagesEnum } from "../constants/packagesEnum";
+import { IExtensionConfigurationService } from "../interfaces/extensionConfigurationServiceInterface";
+import { StatusBarService } from "./statusBarService";
 
 export class ExtensionService {
   private reactMailService = new ReactEmailService();
-  private extensionConfiguration: IExtensionConfiguration = new ExtensionConfiguration();
+  private extensionConfiguration: IExtensionConfigurationService = new ExtensionConfigurationService();
 
   async activate(context: vscode.ExtensionContext) {
     PreviewPanelService.init(context);
+    StatusBarService.init(context);
     this.setupConfigurations();
     this.registerCommands(context);
     this.reactMailService.initExtension(context, this.extensionConfiguration);
@@ -21,45 +23,12 @@ export class ExtensionService {
   }
 
   deactivate() {
-    LoggingService.log("React Email is now deactivate!");
+    LoggingService.log("React Email is now deactivated!");
   }
 
   private setupConfigurations() {
     LoggingService.log("Setting up Extension Configuration.");
-
-    this.extensionConfiguration = {
-      renderApproach: getConfiguration(ExtensionConfigurations.RENDER_APPROACH, DEFAULT_CONFIGURATION.renderApproach),
-      dependencies: getConfiguration(ExtensionConfigurations.DEPENDENCIES, DEFAULT_CONFIGURATION.dependencies),
-      renderOn: getConfiguration(ExtensionConfigurations.RENDER_ON, DEFAULT_CONFIGURATION.renderOn),
-      packageManager: getConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, DEFAULT_CONFIGURATION.packageManager),
-      packages: {
-        directory: getConfiguration(ExtensionConfigurations.DIRECTORY, DEFAULT_CONFIGURATION.packages.directory),
-        reactEmailRenderVersion: getConfiguration(
-          ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION,
-          DEFAULT_CONFIGURATION.packages.reactEmailRenderVersion
-        ),
-        reactEmailComponentsVersion: getConfiguration(
-          ExtensionConfigurations.REACT_EMAIL_COMPONENTS_VERSION,
-          DEFAULT_CONFIGURATION.packages.reactEmailComponentsVersion
-        ),
-        reactVersion: getConfiguration(ExtensionConfigurations.REACT_VERSION, DEFAULT_CONFIGURATION.packages.reactVersion),
-        reactDomVersion: getConfiguration(
-          ExtensionConfigurations.REACT_DOM_VERSION,
-          DEFAULT_CONFIGURATION.packages.reactDomVersion
-        ),
-      },
-      server: {
-        port: getConfiguration(ExtensionConfigurations.SERVER_PORT, DEFAULT_CONFIGURATION.server.port),
-        terminalVisibility: getConfiguration(
-          ExtensionConfigurations.SERVER_TERMINAL_VISIBILITY,
-          DEFAULT_CONFIGURATION.server.terminalVisibility
-        ),
-        terminalColor: getConfiguration(
-          ExtensionConfigurations.SERVER_TERMINAL_COLOR,
-          DEFAULT_CONFIGURATION.server.terminalColor
-        ),
-      },
-    };
+    this.extensionConfiguration.loadConfiguration();
 
     //TODO: there is an issue with this !!!!
     return vscode.workspace.onDidChangeConfiguration((event) => {
@@ -69,16 +38,9 @@ export class ExtensionService {
       // }
 
       if (isConfigurationChanged(event, ExtensionConfigurations.PACKAGE_MANAGER)) {
-        this.extensionConfiguration.packageManager = getConfiguration(
-          ExtensionConfigurations.PACKAGE_MANAGER,
-          this.extensionConfiguration.packageManager
-        );
-        LoggingService.log(
-          `${ExtensionConfigurations.PACKAGE_MANAGER} Configuration Changed ${this.extensionConfiguration.packageManager}!`
-        );
+        this.extensionConfiguration.packageManager = getConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, this.extensionConfiguration.packageManager);
+        LoggingService.log(`${ExtensionConfigurations.PACKAGE_MANAGER} Configuration Changed ${this.extensionConfiguration.packageManager}!`);
       }
-
-      this.reactMailService.updateExtensionConfiguration(this.extensionConfiguration);
     });
   }
 
@@ -115,17 +77,14 @@ export class ExtensionService {
   }
 
   private async selectPackageVersion() {
-    const selectedPackage = (await vscode.window.showQuickPick(
-      [PackagesEnum.REACT, PackagesEnum.REACT_DOM, PackagesEnum.REACT_EMAIL_COMPONENTS, PackagesEnum.REACT_EMAIL_RENDER],
-      {
-        placeHolder: `Selected Package`,
-        title: "Step 1: Select the Package to Update",
-      }
-    )) as PackagesEnum;
+    const selectedPackage = (await vscode.window.showQuickPick([PackagesEnum.REACT, PackagesEnum.REACT_DOM, PackagesEnum.REACT_EMAIL_COMPONENTS, PackagesEnum.REACT_EMAIL_RENDER], {
+      placeHolder: `Selected Package`,
+      title: "Step 1: Select the Package to Update",
+    })) as PackagesEnum;
 
     if (!selectedPackage) return;
 
-    const currentVersion = this.getCurrentVisionOfPackage(selectedPackage);
+    const currentVersion = this.extensionConfiguration.getCurrentVisionOfPackage(selectedPackage);
     const verisons = await this.reactMailService.getPackageVersions(selectedPackage);
     const selectedVersion = await vscode.window.showQuickPick(["latest", ...verisons], {
       placeHolder: `Current version: ${currentVersion}`,
@@ -135,26 +94,7 @@ export class ExtensionService {
     if (!selectedVersion) return;
 
     //TODO: should this be based on the workspace
-    await updateConfiguration(
-      PACKAGE_CONFIGURATION_MAP.get(selectedPackage)!,
-      selectedVersion,
-      vscode.ConfigurationTarget.Workspace
-    );
+    await updateConfiguration(PACKAGE_CONFIGURATION_MAP.get(selectedPackage)!, selectedVersion, vscode.ConfigurationTarget.Workspace);
     LoggingService.log(`Updated ${selectedPackage} version to ${selectedVersion}`);
-  }
-
-  private getCurrentVisionOfPackage(packageName: PackagesEnum): string {
-    switch (packageName) {
-      case PackagesEnum.REACT:
-        return this.extensionConfiguration.packages.reactVersion;
-      case PackagesEnum.REACT_DOM:
-        return this.extensionConfiguration.packages.reactDomVersion;
-      case PackagesEnum.REACT_EMAIL_COMPONENTS:
-        return this.extensionConfiguration.packages.reactEmailComponentsVersion;
-      case PackagesEnum.REACT_EMAIL_RENDER:
-        return this.extensionConfiguration.packages.reactEmailRenderVersion;
-      default:
-        return "latest";
-    }
   }
 }

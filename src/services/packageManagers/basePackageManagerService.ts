@@ -30,14 +30,19 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
     return (await this.getPackageVersions(name)).some((v) => v === version);
   }
 
-  async restartServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
+  async restartEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
     await this.killEmailServer();
     this.runEmailServer(port, projectPath, showTerminal, terminalColor);
   }
 
-  isServerRunning(): boolean {
+  isEmailServerRunning(): boolean {
     if (!this.emailServerTerminal) return false;
     return !this.emailServerTerminal.exitStatus; 
+  }
+
+  isRenderScriptRunning(): boolean {
+    if (!this.emailRenderScriptProcess) return false;
+    return !this.emailRenderScriptProcess.killed;
   }
 
   async killEmailServer() {
@@ -49,7 +54,7 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
     this.emailServerTerminal?.show();
   }
   
-  abstract setupServerProject(_cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
+  abstract setupEmailServerProject(_cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
 
   killRenderScript():void {
     if (!this.emailRenderScriptProcess) return;
@@ -62,7 +67,7 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
     this.emailRenderScriptProcess = undefined;
   }
 
-  abstract startRenderScript(cwd: string | undefined): void;
+  abstract runRenderScript(cwd: string | undefined, _successCallback: (output: IRenderEmail) => void, _errorCallback: (error: unknown) => void): void;
   abstract checkInstalled(): boolean;
   abstract installPackages(_packages: ISimplePackage[], _cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
   abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;

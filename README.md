@@ -13,26 +13,39 @@ This is **NOT an official extension from React Email**, its more of a passion/le
 
 //demo video here
 
+## Usage Notes
+
+#### For Email Templates to be Rendered. They must abide by the following:
+- The Emails must be written in **`.jsx` or `.tsx`** file extensions.
+- The Email Component needs to be the **default export** of the active file.
+- The Props object needs to be exported with the name **`PreviewProps`**. 
+    - Yes, this is unlike how react-email usually does it, including the PreviewProps object as a seperate export made handling things easier. _This might change in a future release_.
+
+#### Sample Email
+```tsx
+
+
+export const PreviewProps: ExampleEmailProps = {
+    name: "React User"
+}
+
+export default ExampleEmail;
+```
+
 ## Why Though?
 
 
 ## Requirements
 
-
+## Known Issues and Limitations
 
 ## Extension Settings
 
-
-## Known Issues
-
-
+## Extension Commands
 
 ## Release Notes
 
-
-
 ## Possible Enhancements ?
-
 
 ## LICENCE
 

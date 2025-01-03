@@ -8,6 +8,7 @@ import { LoggingService } from "../loggingService";
 import { BasePackageManagerService } from "./basePackageManagerService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
 import { ISimplePackage } from "../../interfaces/simplePackageInterface";
+import { IRenderEmail } from "../../interfaces/renderEmailOutput";
 
 export class NpmService extends BasePackageManagerService {
   packageManager = PackageManagerEnum.NPM;
@@ -22,7 +23,7 @@ export class NpmService extends BasePackageManagerService {
     }
   }
 
-  setupServerProject(
+  setupEmailServerProject(
     cwd: string | undefined,
     errorCallback: (output: string) => void = () => {},
     successCallback: (output: string) => void = () => {}
@@ -35,10 +36,20 @@ export class NpmService extends BasePackageManagerService {
     );
   }
 
-  startRenderScript(cwd: string | undefined): void {
-    this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd);
-    // const parsedOutput = JSON.parse(output) as IRenderEmail;
-    // return parsedOutput;
+  runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
+    if (this.isRenderScriptRunning()) {
+      LoggingService.log('Render Script already running!');
+      return;
+    }
+    this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd); //TODO: use terminal instead ;)
+    this.emailRenderScriptProcess.stdout?.on('data', (buffer: Buffer) => {
+      const parsedOutput = JSON.parse(buffer.toString('utf-8')) as IRenderEmail;
+      successCallback(parsedOutput);
+    });
+
+    this.emailRenderScriptProcess.stderr?.on('data', (buffer: Buffer) => {
+      errorCallback(buffer.toString('utf-8'));
+    });
   }
 
   installPackages(
@@ -59,6 +70,10 @@ export class NpmService extends BasePackageManagerService {
   }
 
   runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
+    if (this.isEmailServerRunning()) {
+      LoggingService.log('Rendering Server already running!');
+      return;
+    }
     LoggingService.log(`Spawning npm Email Server Process Terminal 'npm exec -- vite --port=${port}'`);
     this.emailServerTerminal = vscode.window.createTerminal({
       cwd: projectPath,
