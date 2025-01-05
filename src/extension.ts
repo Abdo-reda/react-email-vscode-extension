@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //NOW:
-//- implemenet the watch tsx approach.
+// - make the watch tsx a terminal
 //- implement vite server approach
 //- see into implementing a status bar
 //- see into implement the toolbar.
@@ -26,7 +26,6 @@ import { ExtensionService } from "./services/extensionService";
 //TODO:
 //--- Make sure that the server runs after installation is complete ... I think ...
 //--- Fix the order of the configuration
-//--- make the status bar service a signleton maybe ...
 //--- Warnings from npm??
 
 //--- functionality
@@ -46,9 +45,10 @@ import { ExtensionService } from "./services/extensionService";
 
 //--- Enhacnements.
 //- Support DENO (enviornment, node or deno or bun)
-//- MORE THAN ONE EMAIL AT THE SAME TIME.
+//- Support storybook approach
 //- support different emails at the same time. (will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any)
-//- support multiple project with different dependencies (external projects) ... somehow.
+  //- we can do a simple cache instead of having multiple files.
+//- support multiple project with different dependencies (external projects) ... maybe a setting for multiple projects or a single project.
 
 const extensionService = new ExtensionService();
 

@@ -49,26 +49,26 @@ export class ExtensionService {
     const disposables: vscode.Disposable[] = [];
 
     disposables.push(
-      vscode.commands.registerCommand("react-email.preview", async () => {
+      vscode.commands.registerCommand("react-email-renderer.preview", async () => {
         PreviewPanelService.showOrCreatePanel();
         this.reactMailService.renderActiveDocument();
       })
     );
 
     disposables.push(
-      vscode.commands.registerCommand("react-email.selectPackageVersion", async () => {
+      vscode.commands.registerCommand("react-email-renderer.selectPackageVersion", async () => {
         this.selectPackageVersion();
       })
     );
 
     // disposables.push(
-    //   vscode.commands.registerCommand("react-email.showServerTerminal", () => {
+    //   vscode.commands.registerCommand("react-email-renderer.showServerTerminal", () => {
     //     // this.reactMailService.showTerminalServer();
     //   })
     // );
 
     disposables.push(
-      vscode.commands.registerCommand("react-email._showOutput", () => {
+      vscode.commands.registerCommand("react-email-renderer._showOutput", () => {
         LoggingService.show();
       })
     );

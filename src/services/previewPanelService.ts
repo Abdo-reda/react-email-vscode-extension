@@ -74,7 +74,7 @@ export class PreviewPanelService {
 
   private static createPanel(): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
-      "react-email.server",
+      "react-email-renderer.server",
       "React Email Preview",
       {
         viewColumn: vscode.ViewColumn.Beside,

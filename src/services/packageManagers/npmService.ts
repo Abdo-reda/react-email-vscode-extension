@@ -41,16 +41,33 @@ export class NpmService extends BasePackageManagerService {
       LoggingService.log('Render Script already running!');
       return;
     }
-    this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd); //TODO: use terminal instead ;)
-    this.emailRenderScriptProcess.stdout?.on('data', (buffer: Buffer) => {
-      const parsedOutput = JSON.parse(buffer.toString('utf-8')) as IRenderEmail;
-      successCallback(parsedOutput);
+    LoggingService.log(`Spawning npm Email Script Process Terminal 'npm exec -y -- tsx watch script'`);
+    this.emailScriptTerminal = vscode.window.createTerminal({
+      cwd: cwd,
+      name: "react-email-renderer script",
+      hideFromUser: showTerminal,
+      color: terminalColor,
+      iconPath: new vscode.ThemeIcon("server-process")
     });
-
-    this.emailRenderScriptProcess.stderr?.on('data', (buffer: Buffer) => {
-      errorCallback(buffer.toString('utf-8'));
-    });
+    this.emailScriptTerminal.show(); //TODO: remove later
+    this.emailScriptTerminal.sendText("npm exec -y -- tsx watch script", true);
   }
+
+  // runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
+  //   if (this.isRenderScriptRunning()) {
+  //     LoggingService.log('Render Script already running!');
+  //     return;
+  //   }
+  //   this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd); //TODO: use terminal instead ;)
+  //   this.emailRenderScriptProcess.stdout?.on('data', (buffer: Buffer) => {
+  //     const parsedOutput = JSON.parse(buffer.toString('utf-8')) as IRenderEmail;
+  //     successCallback(parsedOutput);
+  //   });
+
+  //   this.emailRenderScriptProcess.stderr?.on('data', (buffer: Buffer) => {
+  //     errorCallback(buffer.toString('utf-8'));
+  //   });
+  // }
 
   installPackages(
     packages: ISimplePackage[],
@@ -77,7 +94,7 @@ export class NpmService extends BasePackageManagerService {
     LoggingService.log(`Spawning npm Email Server Process Terminal 'npm exec -- vite --port=${port}'`);
     this.emailServerTerminal = vscode.window.createTerminal({
       cwd: projectPath,
-      name: "react-email server",
+      name: "react-email-renderer server",
       hideFromUser: showTerminal,
       color: terminalColor,
       iconPath: new vscode.ThemeIcon("server-process")

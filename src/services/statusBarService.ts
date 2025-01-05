@@ -62,7 +62,7 @@ export class StatusBarService {
     
     private setDefaultCommand(): void 
     {
-        this.statusBar.command = 'react-email._showOutput';
+        this.statusBar.command = 'react-email-renderer._showOutput';
     }
 
     private setErrorCommand(): void

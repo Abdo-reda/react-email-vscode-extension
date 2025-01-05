@@ -30,7 +30,7 @@ export class ReactEmailService {
   }
 
   async initExtension(context: vscode.ExtensionContext, extensionConfigurationService: IExtensionConfigurationService): Promise<void> {
-    LoggingService.log("Initialising react-email ...");
+    LoggingService.log("Initialising react-email-renderer ...");
     this.storagePath = context.extensionUri;
     this.extensionConfigurationService = extensionConfigurationService;
     this.switchPackageManagerService(this.extensionConfigurationService.packageManager);
@@ -119,13 +119,13 @@ export class ReactEmailService {
       (error) => {
         this.isSettingProjectUp = false;
         LoggingService.warn("Error Setting up External Project");
-        showErrorMessage("There was an error setting up the external project for react-email. Please check Logs");
+        showErrorMessage("There was an error setting up the external project for react-email-renderer. Please check Logs");
         PreviewPanelService.setErrorState(error);
       },
       () => {
         this.isSettingProjectUp = false;
         LoggingService.log("Successfully Setup up External Project");
-        showInfoMessage("Successfully setup external project for react-email");
+        showInfoMessage("Successfully setup external project for react-email-renderer");
         if (this.latestEmailDocument) {
           this.updateAndRenderEmail(this.latestEmailDocument);
         } else {

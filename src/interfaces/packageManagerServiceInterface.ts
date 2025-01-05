@@ -4,21 +4,37 @@ import { PackageManagerEnum } from "../constants/packageManagerEnum";
 import { ISimplePackage } from "./simplePackageInterface";
 import { ChildProcess } from "child_process";
 import { IRenderEmail } from "./renderEmailOutput";
+import { RenderApproachEnum } from "../constants/renderApproachEnum";
 
 export interface IPackageManagerService {
   packageManager: PackageManagerEnum;
-  emailServerTerminal: Terminal|undefined;
-  emailRenderScriptProcess: ChildProcess|undefined;
+  renderApproach: RenderApproachEnum;
+  renderTerminal: Terminal|undefined;
+  // emailServerTerminal: Terminal|undefined;
+  // emailScriptTerminal: Terminal|undefined;
+  // emailRenderScriptProcess: ChildProcess|undefined;
 
+  init(
+    renderApproach: RenderApproachEnum, 
+    projectPath: vscode.Uri,
+    scriptSuccess: (output: string) => void, 
+    scriptError: (output: string) => void, 
+    serverSuccess: (output: IRenderEmail) => void, 
+    serverError: (error: unknown) => void
+  ): void;
   checkInstalled(): boolean;
+  switchRenderApproach(renderApproach: RenderApproachEnum): void;
+  
+  isTerminalRunning(): boolean;
+  runRenderTerminal(): void;
 
-  isRenderScriptRunning(): boolean;
-  runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void;
+  // isRenderScriptRunning(): boolean;
+  // runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void;
   killRenderScript(): void;
   
   setupEmailServerProject(cwd: string | undefined, errorCallback: (output: string) => void, successCallback: (output: string) => void): void;
-  isEmailServerRunning(): boolean;
-  runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor, successCallback: () => void): void;
+  // isEmailServerRunning(): boolean;
+  // runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor, successCallback: () => void): void;
   restartEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): Promise<void>;
   killEmailServer(): Promise<void>;
   showEmailServer(): void;

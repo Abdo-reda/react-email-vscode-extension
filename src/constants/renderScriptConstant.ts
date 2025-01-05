@@ -1,4 +1,4 @@
-//TODO: fix the script
+//TODO: optimize the script
 export const RENDER_EMAIL_SCRIPT = `
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
