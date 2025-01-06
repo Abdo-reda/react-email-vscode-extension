@@ -7,7 +7,7 @@ import { TerminalService } from "../terminalService";
 import { NpmService } from "./npmService";
 
 export class PackageManagerServiceFactory {
-  static getService(
+  static getService( //TODO: I don't like this, is there a better way?
     packageManager: PackageManagerEnum,
     terminalService: TerminalService,
     projectPath: vscode.uri,
