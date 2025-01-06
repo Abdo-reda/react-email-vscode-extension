@@ -23,52 +23,6 @@ export class NpmService extends BasePackageManagerService {
     }
   }
 
-  setupEmailServerProject(
-    cwd: string | undefined,
-    errorCallback: (output: string) => void = () => {},
-    successCallback: (output: string) => void = () => {}
-  ): void {
-    runCommandInBackground(
-      `npm exec -y -- degit Abdo-reda/react-email-render-template#main project --force`,
-      cwd,
-      errorCallback,
-      successCallback
-    );
-  }
-
-  runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
-    if (this.isRenderScriptRunning()) {
-      LoggingService.log('Render Script already running!');
-      return;
-    }
-    LoggingService.log(`Spawning npm Email Script Process Terminal 'npm exec -y -- tsx watch script'`);
-    this.emailScriptTerminal = vscode.window.createTerminal({
-      cwd: cwd,
-      name: "react-email-renderer script",
-      hideFromUser: showTerminal,
-      color: terminalColor,
-      iconPath: new vscode.ThemeIcon("server-process")
-    });
-    this.emailScriptTerminal.show(); //TODO: remove later
-    this.emailScriptTerminal.sendText("npm exec -y -- tsx watch script", true);
-  }
-
-  // runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
-  //   if (this.isRenderScriptRunning()) {
-  //     LoggingService.log('Render Script already running!');
-  //     return;
-  //   }
-  //   this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd); //TODO: use terminal instead ;)
-  //   this.emailRenderScriptProcess.stdout?.on('data', (buffer: Buffer) => {
-  //     const parsedOutput = JSON.parse(buffer.toString('utf-8')) as IRenderEmail;
-  //     successCallback(parsedOutput);
-  //   });
-
-  //   this.emailRenderScriptProcess.stderr?.on('data', (buffer: Buffer) => {
-  //     errorCallback(buffer.toString('utf-8'));
-  //   });
-  // }
-
   installPackages(
     packages: ISimplePackage[],
     cwd: string | undefined,
@@ -85,21 +39,91 @@ export class NpmService extends BasePackageManagerService {
       successCallback
     );
   }
-
-  runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
-    if (this.isEmailServerRunning()) {
-      LoggingService.log('Rendering Server already running!');
-      return;
-    }
-    LoggingService.log(`Spawning npm Email Server Process Terminal 'npm exec -- vite --port=${port}'`);
-    this.emailServerTerminal = vscode.window.createTerminal({
-      cwd: projectPath,
-      name: "react-email-renderer server",
-      hideFromUser: showTerminal,
-      color: terminalColor,
-      iconPath: new vscode.ThemeIcon("server-process")
-    });
-    this.emailServerTerminal.show(); //TODO: remove later
-    this.emailServerTerminal.sendText(`npm exec -- vite --port=${port}`, true);
+  
+  setupServerProject(
+    cwd: string | undefined,
+    errorCallback: (output: string) => void = () => {},
+    successCallback: (output: string) => void = () => {}
+  ): void {
+    runCommandInBackground(
+      `npm exec -y -- degit Abdo-reda/react-email-render-template#main project --force`,
+      cwd,
+      errorCallback,
+      successCallback
+    );
   }
+
+  setupScriptProject(
+    cwd: string | undefined,
+    errorCallback: (output: string) => void = () => {},
+    successCallback: (output: string) => void = () => {}
+  ): void {
+    //TODO:
+  }
+
+  runServerTerminal(): void {
+    const port = 8888; //TODO: fix
+    this.terminalService.runTerminal(`npm exec -- vite --port=${port}`, this.projectPath, (output) => {
+      console.log('----server');
+      console.log(output);
+    });  
+  }
+
+  runScriptTerminal(): void {
+    this.terminalService.runTerminal("npm exec -y -- tsx watch script", this.projectPath, (output) => {
+      console.log('----script');
+      console.log(output);
+    });  
+  }
+
+
+  // runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
+  //   if (this.isEmailServerRunning()) {
+  //     LoggingService.log('Rendering Server already running!');
+  //     return;
+  //   }
+  //   LoggingService.log(`Spawning npm Email Server Process Terminal 'npm exec -- vite --port=${port}'`);
+  //   this.emailServerTerminal = vscode.window.createTerminal({
+  //     cwd: projectPath,
+  //     name: "react-email-renderer server",
+  //     hideFromUser: showTerminal,
+  //     color: terminalColor,
+  //     iconPath: new vscode.ThemeIcon("server-process")
+  //   });
+  //   this.emailServerTerminal.show(); //TODO: remove later
+  //   this.emailServerTerminal.sendText(`npm exec -- vite --port=${port}`, true);
+  // }
+
+   // runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
+  //   if (this.isRenderScriptRunning()) {
+  //     LoggingService.log('Render Script already running!');
+  //     return;
+  //   }
+  //   LoggingService.log(`Spawning npm Email Script Process Terminal 'npm exec -y -- tsx watch script'`);
+  //   this.emailScriptTerminal = vscode.window.createTerminal({
+  //     cwd: cwd,
+  //     name: "react-email-renderer script",
+  //     hideFromUser: showTerminal,
+  //     color: terminalColor,
+  //     iconPath: new vscode.ThemeIcon("server-process")
+  //   });
+  //   this.emailScriptTerminal.show(); //TODO: remove later
+  //   this.emailScriptTerminal.sendText("npm exec -y -- tsx watch script", true);
+  // }
+
+  // runRenderScript(cwd: string | undefined, successCallback: (output: IRenderEmail) => void, errorCallback: (error: unknown) => void): void {
+  //   if (this.isRenderScriptRunning()) {
+  //     LoggingService.log('Render Script already running!');
+  //     return;
+  //   }
+  //   this.emailRenderScriptProcess = spawnProcess("npm exec -y -- tsx watch script", [], cwd); //TODO: use terminal instead ;)
+  //   this.emailRenderScriptProcess.stdout?.on('data', (buffer: Buffer) => {
+  //     const parsedOutput = JSON.parse(buffer.toString('utf-8')) as IRenderEmail;
+  //     successCallback(parsedOutput);
+  //   });
+
+  //   this.emailRenderScriptProcess.stderr?.on('data', (buffer: Buffer) => {
+  //     errorCallback(buffer.toString('utf-8'));
+  //   });
+  // }
 }

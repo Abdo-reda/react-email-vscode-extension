@@ -5,26 +5,30 @@ import { LoggingService } from "../loggingService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
 import { ISimplePackage } from "../../interfaces/simplePackageInterface";
 import { IRenderEmail } from "../../interfaces/renderEmailOutput";
-import { ChildProcess } from "child_process";
 import { RenderApproachEnum } from "../../constants/renderApproachEnum";
+import { TerminalService } from "../terminalService";
 
 export abstract class BasePackageManagerService implements IPackageManagerService {
   abstract packageManager: PackageManagerEnum;
-  abstract renderApproach: RenderApproachEnum;
-  abstract projectPath: vscode.Uri;
-  abstract scriptSuccess: (output: string) => void;
-  abstract scriptError: (output: string) => void;
-  abstract serverSuccess: (output: IRenderEmail) => void;
-  abstract serverError: (error: unknown) => void;
-  renderTerminal: vscode.Terminal | undefined;
-
+  terminalService: TerminalService;
+  renderApproach: RenderApproachEnum;
+  projectPath: vscode.Uri;
+  scriptSuccess: (output: string) => void;
+  scriptError: (output: string) => void;
+  serverSuccess: (output: IRenderEmail) => void;
+  serverError: (error: unknown) => void;
   private packageVersions = new Map<string, string[]>(); //TODO: cache in global state or something
 
-  // emailRenderScriptProcess: ChildProcess | undefined;
-  // emailScriptTerminal: vscode.Terminal | undefined;
-  // emailScriptTerminal: vscode.Terminal | undefined;
-
-  init(renderApproach: RenderApproachEnum, projectPath: vscode.Uri, scriptSuccess: (output: string) => void, scriptError: (output: string) => void, serverSuccess: (output: IRenderEmail) => void, serverError: (error: unknown) => void): void {
+  constructor(
+    terminalService: TerminalService,
+    renderApproach: RenderApproachEnum,
+    projectPath: vscode.Uri,
+    scriptSuccess: (output: string) => void,
+    scriptError: (output: string) => void,
+    serverSuccess: (output: IRenderEmail) => void,
+    serverError: (error: unknown) => void
+  ) {
+    this.terminalService = terminalService;
     this.renderApproach = renderApproach;
     this.projectPath = projectPath;
     this.scriptSuccess = scriptSuccess;
@@ -52,20 +56,67 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
 
   switchRenderApproach(renderApproach: RenderApproachEnum): void {
     this.renderApproach = renderApproach;
-    // this.restartEmailServer();
+    this.runRenderTerminal();
   }
 
-  isTerminalRunning(): boolean {
-    if (!this.renderTerminal) return false;
-    return !this.renderTerminal.exitStatus;
+  runRenderTerminal(): void {
+    if (this.renderApproach === RenderApproachEnum.SCRIPT) {
+      this.runScriptTerminal();
+    } else if (this.renderApproach === RenderApproachEnum.SERVER) {
+      this.runServerTerminal();
+    }
   }
 
-  runRenderTerminal(): void {}
-
-  async restartEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
-    await this.killEmailServer();
-    this.runEmailServer(port, projectPath, showTerminal, terminalColor);
+  async restartRenderTerminal() {
+    LoggingService.log(`Restarting ${this.renderApproach} Render Terminal`);
+    await this.terminalService.restartTerminal();
   }
+
+  showRenderTerminal(): void {
+    this.terminalService.show();
+  }
+
+  setupExternalProject(
+    cwd: string | undefined,
+    errorCallback?: (output: string) => void,
+    successCallback?: (output: string) => void
+  ) {
+    if (this.renderApproach === RenderApproachEnum.SCRIPT) {
+      this.setupScriptProject(cwd, errorCallback, successCallback);
+    } else if (this.renderApproach === RenderApproachEnum.SERVER) {
+      this.setupServerProject(cwd, errorCallback, successCallback);
+    }
+  }
+
+  abstract checkInstalled(): boolean;
+  abstract installPackages(
+    _packages: ISimplePackage[],
+    _cwd: string | undefined,
+    _errorCallback?: (output: string) => void,
+    _successCallback?: (output: string) => void
+  ): void;
+  abstract runScriptTerminal(): void;
+  abstract runServerTerminal(): void;
+  abstract setupServerProject(
+    _cwd: string | undefined,
+    _errorCallback?: (output: string) => void,
+    _successCallback?: (output: string) => void
+  ): void;
+  abstract setupScriptProject(
+    _cwd: string | undefined,
+    _errorCallback?: (output: string) => void,
+    _successCallback?: (output: string) => void
+  ): void;
+
+  // async killRenderTerminal() {
+  //   LoggingService.log(`Killing ${this.renderApproach} Render Terminal`);
+  //   await this.renderTerminal?.dispose();
+  // }
+
+  // async restartEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
+  //   await this.killEmailServer();
+  //   this.runEmailServer(port, projectPath, showTerminal, terminalColor);
+  // }
 
   // isEmailServerRunning(): boolean {
   //   if (!this.emailServerTerminal) return false;
@@ -82,19 +133,19 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
   //   return !this.emailRenderScriptProcess.killed;
   // }
 
-  async killEmailServer() {
-    LoggingService.log(`Killing Email Server`);
-    await this.emailServerTerminal?.dispose();
-  }
+  // async killEmailServer() {
+  //   LoggingService.log(`Killing Email Server`);
+  //   await this.emailServerTerminal?.dispose();
+  // }
 
-  showEmailServer(): void {
-    this.emailServerTerminal?.show();
-  }
+  // showEmailServer(): void {
+  //   this.emailServerTerminal?.show();
+  // }
 
-  async killRenderScript() {
-    LoggingService.log(`Killing Script Server`);
-    await this.emailScriptTerminal?.dispose();
-  }
+  // async killRenderScript() {
+  //   LoggingService.log(`Killing Script Server`);
+  //   await this.emailScriptTerminal?.dispose();
+  // }
 
   // killRenderScript():void {
   //   LoggingService.log(`Killing Script Server`);
@@ -108,9 +159,6 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
   //   this.emailRenderScriptProcess = undefined;
   // }
 
-  abstract setupEmailServerProject(_cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
-  abstract runRenderScript(cwd: string | undefined, _successCallback: (output: IRenderEmail) => void, _errorCallback: (error: unknown) => void): void;
-  abstract checkInstalled(): boolean;
-  abstract installPackages(_packages: ISimplePackage[], _cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
-  abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;
+  // abstract runRenderScript(cwd: string | undefined, _successCallback: (output: IRenderEmail) => void, _errorCallback: (error: unknown) => void): void;
+  // abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;
 }

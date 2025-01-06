@@ -7,10 +7,10 @@ import { PackagesEnum } from "../constants/packagesEnum";
 import { getConfiguration } from "../utilities/vscodeUtilities";
 import { ExtensionConfigurations } from "../constants/configurationEnum";
 
-const LATEST = "latest";
-const DEFAULT_EXTENSION_URI = "extensionUri:";
-const DEFAULT_SERVER_PORT = 7777;
-const DEFAULT_TERMINAL_COLOR = "terminal.ansiCyan";
+export const LATEST = "latest";
+export const DEFAULT_EXTENSION_URI = "extensionUri:";
+export const DEFAULT_SERVER_PORT = 7777;
+export const DEFAULT_TERMINAL_COLOR = "terminal.ansiCyan";
 
 export class ExtensionConfigurationService implements IExtensionConfiguration {
   renderApproach = RenderApproachEnum.SERVER;
