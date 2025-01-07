@@ -25,6 +25,7 @@ export class TerminalService {
   private resetTerminal = false;
 
   init(context: vscode.ExtensionContext, visibility: boolean, icon: vscode.ThemeIcon, color: vscode.ThemeColor) {
+    this.resetTerminal = true;
     this.visibility = visibility;
     this.icon = icon;
     this.color = color;
@@ -32,16 +33,20 @@ export class TerminalService {
   }
 
   async runTerminal(command: string, cwd: vscode.Uri, onOutput: (output: string) => void = () => {}) {
+    const oldCWD = this.terminalExecutionConfig.cwd?.fsPath;
+    const oldCommand = this.terminalExecutionConfig.command;
     this.terminalExecutionConfig = {
       cwd: cwd,
       command: command,
       onOutput: onOutput,
     };
-    if (this.resetTerminal || this.terminalExecutionConfig.cwd?.fsPath !== cwd.fsPath) {
+    if (this.resetTerminal || oldCWD !== cwd.fsPath) {
       await this.createTerminal(cwd);
       return;
     }
-    this.executeCommand(); //should I use await?
+    if (oldCommand !== command) {
+      this.executeCommand(); //TODO: should I use await?
+    }
   }
 
   async restartTerminal() {
@@ -73,7 +78,9 @@ export class TerminalService {
     this.resetTerminal = true;
   }
 
-  private async createTerminal(cwd: vscode.Uri, name: string = "react-email-renderer script") {
+  private async createTerminal(cwd: vscode.Uri, name: string = "react-email-renderer") {
+    LoggingService.log(`Creating Terminal ${name} at ${cwd.fsPath}`);
+    this.resetTerminal = false;
     await this.killTerminal();
     this.terminal = vscode.window.createTerminal({
       cwd: cwd,
@@ -82,14 +89,14 @@ export class TerminalService {
       color: this.color,
       iconPath: this.icon,
     });
-    this.terminal.show(); //TODO: remove later
+    this.terminal.show(true); //TODO: remove later
 
     // this.terminal.sendText(command, true); //TODO: what if shell integration is not enabled? is this the right way of handling this? should I just return to sendingText and using node child process ... I hate everything >.<
   }
 
   private setupListeners(context: vscode.ExtensionContext) {
     const changeDisposable = vscode.window.onDidChangeTerminalShellIntegration(async (event) => {
-      LoggingService.log(`Shell Integration Change for termianl '${event.terminal.name}'`);
+      LoggingService.log(`Shell Integration Enabled for terminal '${event.terminal.name}'`);
       if (event.terminal !== this.terminal || this.activeExecution) return;
       this.executeCommand();
     });
@@ -115,12 +122,12 @@ export class TerminalService {
   private async executeCommand() {
     //TODO: error handling?
     //TODO: what if shell integration is not enabled?
+    LoggingService.log(`Executing Command In Terminal ${this.terminalExecutionConfig.command}`);
     this.activeExecution = true;
     const shellExecution = this.terminal!.shellIntegration!.executeCommand(this.terminalExecutionConfig.command);
     const stream = shellExecution.read();
     for await (const data of stream) {
       this.terminalExecutionConfig.onOutput(data);
-      console.log(data);
     }
   }
 }

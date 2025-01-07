@@ -6,6 +6,7 @@ import { RenderOnEnum } from "../constants/renderOnEnum";
 import { PackagesEnum } from "../constants/packagesEnum";
 import { getConfiguration } from "../utilities/vscodeUtilities";
 import { ExtensionConfigurations } from "../constants/configurationEnum";
+import { RuntimeEnviornmentEnum } from "../constants/runtimeEnvironmentEnum";
 
 export const LATEST = "latest";
 export const DEFAULT_EXTENSION_URI = "extensionUri:";
@@ -16,6 +17,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
   renderApproach = RenderApproachEnum.SERVER;
   dependencies = DependenciesEnum.EXTERNAL;
   renderOn = RenderOnEnum.ON_SAVE;
+  runtimeEnviornment = RuntimeEnviornmentEnum.NODE;
   packageManager = PackageManagerEnum.NPM;
   packages = {
     directory: DEFAULT_EXTENSION_URI,
@@ -24,7 +26,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
     reactVersion: LATEST,
     reactDomVersion: LATEST,
   };
-  server = {
+  server = { //TODO: rename from server to terminal, update configuration
     port: DEFAULT_SERVER_PORT,
     terminalColor: DEFAULT_TERMINAL_COLOR,
     terminalVisibility: true,
@@ -34,6 +36,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
       this.renderApproach = getConfiguration(ExtensionConfigurations.RENDER_APPROACH, this.renderApproach);
       this.dependencies = getConfiguration(ExtensionConfigurations.DEPENDENCIES, this.dependencies);
       this.renderOn = getConfiguration(ExtensionConfigurations.RENDER_ON, this.renderOn);
+      this.runtimeEnviornment = getConfiguration(ExtensionConfigurations.RUNTIME_ENVIORNMENT, this.runtimeEnviornment);
       this.packageManager = getConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, this.packageManager);
       this.packages = {
         directory: getConfiguration(ExtensionConfigurations.DIRECTORY, this.packages.directory),

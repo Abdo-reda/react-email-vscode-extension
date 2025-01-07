@@ -3,6 +3,7 @@ import { PackagesEnum } from "./packagesEnum";
 export enum ExtensionConfigurations {
     RENDER_APPROACH = "renderApproach",
     DEPENDENCIES = "dependencies",
+    RUNTIME_ENVIORNMENT = "runtimeEnviornment",
     PACKAGE_MANAGER = "packageManager",
     RENDER_ON = "renderOn",
     DIRECTORY = "packages.directory",

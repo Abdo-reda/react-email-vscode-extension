@@ -80,6 +80,15 @@
           "order": 0,
           "markdownDescription": "Which dependencies will be used to render the email. Currently, only `external` option is allowed. Later, a `local` option that uses the active project dependencies would be supported. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
         },
+        "react-email-renderer.runtimeEnviornment": {
+          "type": "string",
+          "enum": [
+            "node"
+          ],
+          "default": "node",
+          "order": 0,
+          "markdownDescription": "The Runtime Enviornment Used to execute scripts. Currently only node is supported. Later, support for deno, bun will be added."
+        },
         "react-email-renderer.packageManager": {
           "type": "string",
           "enum": [
