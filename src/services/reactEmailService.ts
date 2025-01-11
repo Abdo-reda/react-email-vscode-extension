@@ -8,11 +8,11 @@ import { PackageManagerServiceFactory } from "./packageManagers/packageManagerSe
 import { RENDER_EMAIL_SCRIPT } from "../constants/renderScriptConstant";
 import { PreviewPanelService } from "./previewPanelService";
 import { PackageManagerEnum } from "../constants/packageManagerEnum";
-import { RenderOnEnum } from "../constants/renderOnEnum";
 import { IExtensionConfigurationService } from "../interfaces/extensionConfigurationServiceInterface";
 import { StatusBarService } from "./statusBarService";
 import { TerminalService } from "./terminalService";
 import { RenderApproachEnum } from "../constants/renderApproachEnum";
+import { getServerWebviewContent } from "../constants/previewWebviewConstant";
 
 export class ReactEmailService {
   private encoder = new TextEncoder();
@@ -162,10 +162,7 @@ export class ReactEmailService {
     this.terminalService.runTerminal(
       this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`),
       this.projectPath,
-      (output) => {
-        // console.log("----server");
-        // console.log(output);
-      }
+      (output) => this.onServerEmailRenderCallback(output, false)
     );
   }
 
@@ -173,10 +170,7 @@ export class ReactEmailService {
     this.terminalService.runTerminal(
       this.packageManagerService.getCommandFormat("tsx watch script"), 
       this.projectPath, 
-      (output) => {
-        // console.log("----script");
-        // console.log(output);
-      }
+      (output) => this.onScriptEmailRenderCallback(output, false)
     );
   }
 
@@ -197,18 +191,15 @@ export class ReactEmailService {
   }
 
   private onServerEmailRenderCallback(output: string, isError: boolean): void {
-    LoggingService.log(`Executed render email server, isError: ${isError}`);
-    console.log("--- output", output);
+    LoggingService.log(`Recieved output from render email server, isError: ${isError}`);
     if (isError) {
-      // LoggingService.warn("There was an error while rendering the email.");
-      // if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
-      // StatusBarService.setErrorState();
+      return;
     } else {
-      // PreviewPanelService.setPreviewState({
-      //   text: "N/A",
-      //   html: getServerWebviewContent(this.extensionConfigurationService.server.port),
-      // });
-      // StatusBarService.setSuccessState();
+      PreviewPanelService.setPreviewState({
+        text: "N/A",
+        html: getServerWebviewContent(this.extensionConfiguration.server.port),
+      });
+      StatusBarService.setSuccessState();
     }
   }
 

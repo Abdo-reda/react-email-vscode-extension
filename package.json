@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -42,17 +42,27 @@
     "commands": [
       {
         "command": "react-email-renderer.preview",
-        "title": "React Email: Preview Email",
+        "title": "React Email Renderer: Preview Email",
         "icon": "$(heart)"
       },
       {
         "command": "react-email-renderer.selectPackageVersion",
-        "title": "React Email: Update Package Version Configuration",
+        "title": "React Email Renderer: Update Package Version Configuration",
         "icon": "$(versions)"
+      },
+      {
+        "command": "react-email-renderer.showTerminal",
+        "title": "React Email Renderer: Show Render Terminal",
+        "icon": "$(terminal-view-icon)"
+      },
+      {
+        "command": "react-email-renderer.hideTerminal",
+        "title": "React Email Renderer: Hide Render Terminal",
+        "icon": "$(terminal-view-icon)"
       }
     ],
     "configuration": {
-      "title": "React Email",
+      "title": "React Email Renderer",
       "properties": {
         "react-email-renderer.renderApproach": {
           "type": "string",
@@ -163,7 +173,7 @@
           "type": "boolean",
           "default": true,
           "order": 2,
-          "markdownDescription": "Controls the visiblity behaviour of the server terminal when the server runs. By default, the server terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email-renderer.showServerTerminal` command.  \n  \n_This setting has no effect if `#react-email-renderer.renderApproach#` is set to `script`._"
+          "markdownDescription": "Controls the visiblity behaviour of the server terminal when rendering. By default, the terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email-renderer.showTerminal` command."
         },
         "react-email-renderer.server.terminalColor": {
           "type": "string",
@@ -205,7 +215,7 @@
           ],
           "default": "terminal.ansiCyan",
           "order": 2,
-          "markdownDescription": "The Color of the Render Server Terminal. This affects nothing and is only for cosmetic purposes. The choice is limited to vscode built-in colors.  \n  \n_This setting has no effect if `#react-email-renderer.renderApproach#` is set to `script`_"
+          "markdownDescription": "The Color of the Render Server Terminal. This affects nothing and is only for cosmetic purposes. The choice is limited to vscode built-in colors."
         }
       }
     }

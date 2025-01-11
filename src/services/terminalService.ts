@@ -44,7 +44,7 @@ export class TerminalService {
       await this.createTerminal(cwd);
       return;
     }
-    if (oldCommand !== command) {
+    if (oldCommand !== command || !this.activeExecution) {
       this.executeCommand(); //TODO: should I use await?
     }
   }
@@ -102,6 +102,7 @@ export class TerminalService {
     });
 
     const endDisposable = vscode.window.onDidEndTerminalShellExecution((event) => {
+      console.log('--- terminal execution ended');
       if (event.terminal !== this.terminal) return;
       this.activeExecution = false;
     });

@@ -34,9 +34,13 @@ export class PreviewPanelService {
 
   static setEmailTitle(title: string): void {
     this.panelStateInfo.emailTitle = `${title}`;
+    this.refreshPanel();
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
+    if (this.panelStateInfo.emailOutput.html === emailOutput.html && this.panelState === PreviewPanelStateEnum.PREVIEW) {
+      return;
+    }
     this.panelState = PreviewPanelStateEnum.PREVIEW;
     this.panelStateInfo.emailOutput = emailOutput;
     this.refreshPanel();

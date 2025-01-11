@@ -1,9 +1,16 @@
 import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
+//TODO:
+//- handle if user stops the rendering process
+//- handle if the user kills the rendering process
+//- preview panel for server not working (when it used to work.)
+
 //NOW:
-// - make the watch tsx a terminal
-//- implement vite server approach
+// - react-email-renderer.packages.directory (update the usage of directory)
+// - 
+
+//NOW:
 //- see into implementing a status bar
 //- see into implement the toolbar.
 //- optimize render script somehow.
