@@ -153,6 +153,7 @@ export class ReactEmailService {
 
   async updateAndRenderEmail(document: vscode.TextDocument) {
     StatusBarService.setLoadingState();
+    PreviewPanelService.setRenderingState(path.basename(document.fileName));
     this.latestEmailDocument = document;
     await this.updateMainEmail(document);
     this.renderEmail();
@@ -175,7 +176,6 @@ export class ReactEmailService {
   }
 
   private async updateMainEmail(document: vscode.TextDocument) {
-    PreviewPanelService.setEmailTitle(path.basename(document.fileName));
     const text = document.getText();
     await vscode.workspace.fs.writeFile(this.mainEmailFilePath, this.encoder.encode(text));
   }
@@ -190,7 +190,7 @@ export class ReactEmailService {
     }
   }
 
-  private onServerEmailRenderCallback(output: string, isError: boolean): void {
+  private onServerEmailRenderCallback(_output: string, isError: boolean): void {
     LoggingService.log(`Recieved output from render email server, isError: ${isError}`);
     if (isError) {
       return;

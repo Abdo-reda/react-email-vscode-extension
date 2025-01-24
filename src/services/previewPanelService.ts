@@ -4,6 +4,7 @@ import {
   getErrorWebviewContent,
   getLoadingWebviewContent,
   getNoneWebviewContent,
+  getRenderingWebviewContent,
 } from "../constants/previewWebviewConstant";
 import { IPanelState } from "../interfaces/panelStateInterface";
 import { IRenderEmail } from "../interfaces/renderEmailOutput";
@@ -32,8 +33,9 @@ export class PreviewPanelService {
     return !this.previewPanel;
   }
 
-  static setEmailTitle(title: string): void {
-    this.panelStateInfo.emailTitle = `${title}`;
+  static setRenderingState(title: string): void {
+    this.panelState = PreviewPanelStateEnum.RENDERING;
+    this.panelStateInfo.emailTitle = title;
     this.refreshPanel();
   }
 
@@ -120,6 +122,8 @@ export class PreviewPanelService {
         return getLoadingWebviewContent();
       case PreviewPanelStateEnum.ERROR:
         return getErrorWebviewContent(this.panelStateInfo.emailErrors);
+      case PreviewPanelStateEnum.RENDERING:
+        return getRenderingWebviewContent(); //TODO: fix previews
       case PreviewPanelStateEnum.PREVIEW:
         return this.panelStateInfo.emailOutput.html; //TODO: more here probably?
       default:
@@ -130,6 +134,6 @@ export class PreviewPanelService {
   private static getTitle(): string {
     if (this.panelStateInfo.emailTitle)
       return `${this.panelStateInfo.emailTitle}[preview]`;
-    return "React Email Preview";
+    return "React Email [preview]";
   }
 }

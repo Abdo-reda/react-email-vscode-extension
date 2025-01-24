@@ -3,4 +3,5 @@ export enum PreviewPanelStateEnum {
 	PREVIEW = 'preview',
 	LOADING = 'loading',
 	ERROR = 'error',
+	RENDERING = 'rendering',
 }

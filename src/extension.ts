@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //TODO:
+//- preview panel states and vite server fixes 
 //- handle if user stops the rendering process
 //- handle if the user kills the rendering process
 //- preview panel for server not working (when it used to work.)

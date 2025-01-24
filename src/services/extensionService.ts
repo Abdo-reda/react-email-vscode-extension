@@ -16,6 +16,7 @@ export class ExtensionService {
   private extensionConfiguration = new ExtensionConfigurationService();
 
   async activate(context: vscode.ExtensionContext) {
+    LoggingService.log("React Email is Activating ...");
     this.setupConfigurations();
     this.registerCommands(context);
     this.initServices(context);
@@ -51,8 +52,8 @@ export class ExtensionService {
 
     disposables.push(
       vscode.commands.registerCommand("react-email-renderer.preview", async () => {
-        PreviewPanelService.showOrCreatePanel();
         this.reactMailService.renderActiveDocument();
+        PreviewPanelService.showOrCreatePanel();
       })
     );
 

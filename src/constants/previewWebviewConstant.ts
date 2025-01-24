@@ -130,3 +130,7 @@ export function getServerWebviewContent(port: number) {
     </html>
     `;
 }
+
+export function getRenderingWebviewContent() {
+  return `RENDERING`;
+}
