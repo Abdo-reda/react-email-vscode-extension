@@ -63,11 +63,11 @@ export class ExtensionService {
       })
     );
 
-    // disposables.push(
-    //   vscode.commands.registerCommand("react-email-renderer.showServerTerminal", () => {
-    //     // this.reactMailService.showTerminalServer();
-    //   })
-    // );
+    disposables.push(
+      vscode.commands.registerCommand("react-email-renderer.showServerTerminal", () => {
+        this.terminalService.show();
+      })
+    );
 
     disposables.push(
       vscode.commands.registerCommand("react-email-renderer._showOutput", () => {

@@ -80,14 +80,14 @@ export class TerminalService {
 
   private async createTerminal(cwd: vscode.Uri, name: string = "react-email-renderer") {
     LoggingService.log(`Creating Terminal ${name} at ${cwd.fsPath}`);
-    this.resetTerminal = false;
     await this.killTerminal();
+    this.resetTerminal = false;
     this.terminal = vscode.window.createTerminal({
       cwd: cwd,
       name: name,
       hideFromUser: this.visibility,
       color: this.color,
-      iconPath: this.icon,
+      iconPath: this.icon, //custom icons
     });
     this.terminal.show(true); //TODO: remove later
 
@@ -102,12 +102,19 @@ export class TerminalService {
     });
 
     const endDisposable = vscode.window.onDidEndTerminalShellExecution((event) => {
-      console.log('--- terminal execution ended');
       if (event.terminal !== this.terminal) return;
+      LoggingService.log("Terminal process execution ended");
       this.activeExecution = false;
     });
 
-    context.subscriptions.push(changeDisposable, endDisposable);
+    const closeDisposable = vscode.window.onDidCloseTerminal((terminal) => {
+      if (terminal !== this.terminal) return;
+        LoggingService.log("Terminal was closed/killed");
+        this.activeExecution = false;
+        this.resetTerminal = true;
+    });
+
+    context.subscriptions.push(changeDisposable, endDisposable, closeDisposable);
   }
 
   private isTerminalRunning(): boolean {
@@ -117,10 +124,15 @@ export class TerminalService {
 
   private async killTerminal() {
     this.activeExecution = false;
+    this.resetTerminal = true;
     await this.terminal?.dispose();
   }
 
   private async executeCommand() {
+    if (!this.terminal!.shellIntegration) {
+      LoggingService.log("Shell Integration is not ready or not enabled...");
+      return;
+    }
     //TODO: error handling?
     //TODO: what if shell integration is not enabled?
     LoggingService.log(`Executing Command In Terminal ${this.terminalExecutionConfig.command}`);

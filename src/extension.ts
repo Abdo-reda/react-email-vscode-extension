@@ -2,21 +2,12 @@ import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
 //TODO:
-//- preview panel states and vite server fixes 
-//- handle if user stops the rendering process
-//- handle if the user kills the rendering process
-//- preview panel for server not working (when it used to work.)
-
-//NOW:
-// - react-email-renderer.packages.directory (update the usage of directory)
-// - 
-
-//NOW:
-//- see into implementing a status bar
-//- see into implement the toolbar.
-//- optimize render script somehow.
-//- loading indicator.
-//- sometimes it does not work lol :)
+//- make sure script is working
+//- make deno imports work (add support for deno depenednecies)
+//- custom icons
+//- status bar
+//- preview panel toolbar
+//- react-email-renderer.packages.directory (update the usage of directory)
 
 //---- Tab feature:
 //- the tab title is filename[preview]
@@ -35,13 +26,6 @@ import { ExtensionService } from "./services/extensionService";
 //--- Make sure that the server runs after installation is complete ... I think ...
 //--- Fix the order of the configuration
 //--- Warnings from npm??
-
-//--- functionality
-//- status bar
-// (green, server is live, hover, tells you the server is live at what (url). --> opens the tab in case it was closed and shows the terminal.
-// (red, server was unable to run) --> clicks, opens terminal/logs
-// (grey, nothing is happening) --> runs the server and opens the tab
-//- add support for deno depenednecies
 
 //--- So, settings for:
 //- local dependencies (project) or external dependencies (temp-project)

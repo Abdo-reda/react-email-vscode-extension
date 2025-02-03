@@ -1,5 +1,11 @@
 import * as vscode from "vscode";
 
+//--- functionality
+//- status bar
+// (green, server is live, hover, tells you the server is live at what (url). --> opens the tab in case it was closed and shows the terminal.
+// (red, server was unable to run) --> clicks, opens terminal/logs
+// (grey, nothing is happening) --> runs the server and opens the tab
+
 export class StatusBarService {
     private statusBar: vscode.StatusBarItem;
     private static _instance: StatusBarService;
