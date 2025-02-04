@@ -12,7 +12,7 @@ export enum ExtensionConfigurations {
     REACT_VERSION = "packages.reactVersion", 
     REACT_DOM_VERSION = "packages.reactDomVersion", 
     SERVER_PORT = "server.port", 
-    SERVER_TERMINAL_VISIBILITY = "server.terminalVisibility", 
+    SERVER_TERMINAL_VISIBLE = "server.terminalVisible", 
     SERVER_TERMINAL_COLOR = "server.terminalColor", 
 }
 

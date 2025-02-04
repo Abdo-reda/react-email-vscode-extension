@@ -29,7 +29,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
   server = { //TODO: rename from server to terminal, update configuration
     port: DEFAULT_SERVER_PORT,
     terminalColor: DEFAULT_TERMINAL_COLOR,
-    terminalVisibility: true,
+    terminalVisible: false,
   };
 
   loadConfiguration(): void {
@@ -47,7 +47,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
       };
       this.server = {
         port: getConfiguration(ExtensionConfigurations.SERVER_PORT, this.server.port),
-        terminalVisibility: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_VISIBILITY, this.server.terminalVisibility),
+        terminalVisible: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_VISIBLE, this.server.terminalVisible),
         terminalColor: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_COLOR, this.server.terminalColor),
       };
   }

@@ -23,6 +23,7 @@ export class TerminalService {
     onOutput: () => {},
   };
   private resetTerminal = false;
+  private isVisible = false;
 
   init(context: vscode.ExtensionContext, visibility: boolean, icon: vscode.ThemeIcon, color: vscode.ThemeColor) {
     this.resetTerminal = true;
@@ -32,7 +33,7 @@ export class TerminalService {
     this.setupListeners(context);
   }
 
-  async runTerminal(command: string, cwd: vscode.Uri, onOutput: (output: string) => void = () => {}) {
+  async runTerminal(command: string, cwd: vscode.Uri, onOutput: (output: string) => void = () => {}): Promise<boolean> {
     const oldCWD = this.terminalExecutionConfig.cwd?.fsPath;
     const oldCommand = this.terminalExecutionConfig.command;
     this.terminalExecutionConfig = {
@@ -42,17 +43,25 @@ export class TerminalService {
     };
     if (this.resetTerminal || oldCWD !== cwd.fsPath) {
       await this.createTerminal(cwd);
-      return;
+      return true;
     }
     if (oldCommand !== command || !this.activeExecution) {
       this.executeCommand(); //TODO: should I use await?
+      return true;
     }
+    return false;
   }
 
   async restartTerminal() {
     if (!this.terminalExecutionConfig.cwd) return;
     LoggingService.log("Restarting Terminal");
     await this.createTerminal(this.terminalExecutionConfig.cwd);
+  }
+
+  toggleVisibility() {
+    this.isVisible = !this.isVisible;
+    if (this.isVisible) this.show();
+    else this.hide();
   }
 
   show() {
@@ -85,11 +94,12 @@ export class TerminalService {
     this.terminal = vscode.window.createTerminal({
       cwd: cwd,
       name: name,
-      hideFromUser: this.visibility,
+      hideFromUser: !this.visibility,
       color: this.color,
       iconPath: this.icon, //custom icons
     });
-    this.terminal.show(true); //TODO: remove later
+    this.isVisible = this.visibility;
+    // this.terminal.show(true); //TODO: remove later
 
     // this.terminal.sendText(command, true); //TODO: what if shell integration is not enabled? is this the right way of handling this? should I just return to sendingText and using node child process ... I hate everything >.<
   }

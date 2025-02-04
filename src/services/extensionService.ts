@@ -64,8 +64,14 @@ export class ExtensionService {
     );
 
     disposables.push(
-      vscode.commands.registerCommand("react-email-renderer.showServerTerminal", () => {
-        this.terminalService.show();
+      vscode.commands.registerCommand("react-email-renderer.toggleRenderingTerminalVisibility", () => {
+        this.terminalService.toggleVisibility();
+      })
+    );
+
+    disposables.push(
+      vscode.commands.registerCommand("react-email-renderer.restartRenderTerminal", () => {
+        this.terminalService.restartTerminal();
       })
     );
 
@@ -83,7 +89,7 @@ export class ExtensionService {
     StatusBarService.init(context);
     this.terminalService.init(
       context,
-      this.extensionConfiguration.server.terminalVisibility,
+      this.extensionConfiguration.server.terminalVisible,
       new vscode.ThemeIcon("server-process"),
       new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor)
     );

@@ -19,7 +19,7 @@ export interface IExtensionConfiguration {
 	};
 	server: {
 		port: number,
-		terminalVisibility: boolean,
+		terminalVisible: boolean,
 		terminalColor: string,
 	};
 }

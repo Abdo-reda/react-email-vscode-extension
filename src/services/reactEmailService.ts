@@ -153,13 +153,16 @@ export class ReactEmailService {
 
   async updateAndRenderEmail(document: vscode.TextDocument) {
     StatusBarService.setLoadingState();
-    PreviewPanelService.setRenderingState(path.basename(document.fileName));
+    const fileName = path.basename(document.fileName);
+    if (!this.isSettingProjectUp && this.latestEmailDocument?.fileName !== document.fileName) PreviewPanelService.setRenderingState(fileName);
+    PreviewPanelService.setEmailTitle(fileName);
     this.latestEmailDocument = document;
     await this.updateMainEmail(document);
     this.renderEmail();
   }
 
   private runServerTerminal(): void {
+    LoggingService.log("Running Server Terminal");
     this.terminalService.runTerminal(
       this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`),
       this.projectPath,
