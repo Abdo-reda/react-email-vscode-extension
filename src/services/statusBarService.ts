@@ -10,8 +10,9 @@ export class StatusBarService {
     private statusBar: vscode.StatusBarItem;
     private static _instance: StatusBarService;
     private static defaultColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.foreground');
-    private static errorColor: vscode.ThemeColor = new vscode.ThemeColor('errorForeground');
+    private static errorColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.errorForeground');
     private static successColor: vscode.ThemeColor = new vscode.ThemeColor('notebookStatusSuccessIcon.foreground');
+    private static warnColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.warningForeground');
 
     constructor() {
         this.statusBar = this.createStatusBar();
@@ -58,6 +59,13 @@ export class StatusBarService {
         this.instance.statusBar.color = this.defaultColor;
         this.instance.statusBar.text = `$(loading~spin) react-email`;
     }
+
+    public static setWarningState(): void {
+        this.instance.setDefaultCommand();
+        this.instance.setWarningToolTip();
+        this.instance.statusBar.color = this.warnColor;
+        this.instance.statusBar.text = `$(react-email-warn) react-email`;
+    }
     
     public static setErrorState(): void {
         this.instance.setErrorCommand();
@@ -78,6 +86,10 @@ export class StatusBarService {
 
     private setErrorToolTip(): void {
         this.statusBar.tooltip = 'react email server was unable to run, is shell integration enabled? check logs'; 
+    }
+
+    private setWarningToolTip(): void {
+        this.statusBar.tooltip = 'react email faced an error rendering the email'; 
     }
 
     private setDefaultToolTip(): void {

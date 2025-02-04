@@ -45,7 +45,13 @@ export default ExampleEmail;
 
 ## Release Notes
 
-## Possible Enhancements ?
+## Possible Enhancements
+
+- [ ] Make deno imports work (add support for deno and resolutions).
+- [ ] Add support for Bun.
+- [ ] Maybe look into supporting multiple emails at once (storybook approach).
+    - Will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any.
+- [ ] Support multiple project with different dependencies (external projects) ... maybe a setting for multiple projects or a single project.
 
 ## LICENCE
 

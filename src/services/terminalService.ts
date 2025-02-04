@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { LoggingService } from "./loggingService";
+import { StatusBarService } from "./statusBarService";
 
 interface ITerminalExecutionConfig {
   cwd: vscode.Uri | undefined;
@@ -99,8 +100,6 @@ export class TerminalService {
       iconPath: this.icon, //custom icons
     });
     this.isVisible = this.visibility;
-    // this.terminal.show(true); //TODO: remove later
-
     // this.terminal.sendText(command, true); //TODO: what if shell integration is not enabled? is this the right way of handling this? should I just return to sendingText and using node child process ... I hate everything >.<
   }
 
@@ -115,6 +114,7 @@ export class TerminalService {
       if (event.terminal !== this.terminal) return;
       LoggingService.log("Terminal process execution ended");
       this.activeExecution = false;
+      StatusBarService.setDefaultState();
     });
 
     const closeDisposable = vscode.window.onDidCloseTerminal((terminal) => {
@@ -122,6 +122,7 @@ export class TerminalService {
         LoggingService.log("Terminal was closed/killed");
         this.activeExecution = false;
         this.resetTerminal = true;
+        StatusBarService.setDefaultState();
     });
 
     context.subscriptions.push(changeDisposable, endDisposable, closeDisposable);

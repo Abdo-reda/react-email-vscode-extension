@@ -3,14 +3,12 @@ import { ExtensionService } from "./services/extensionService";
 
 //TODO:
 //- make sure script is working
-//- make deno imports work (add support for deno depenednecies)
 //- custom icons
 //- status bar
 //- preview panel toolbar
 //- react-email-renderer.packages.directory (update the usage of directory)
 
 //---- Tab feature:
-//- the tab title is filename[preview]
 //- the tab icon is react email maybe
 //- the tab has a toolbar:
 //- color picker options to change the background.
@@ -23,24 +21,7 @@ import { ExtensionService } from "./services/extensionService";
 //- the tab shows a preview/render of the output of the render method or localhost url
 
 //TODO:
-//--- Make sure that the server runs after installation is complete ... I think ...
-//--- Fix the order of the configuration
 //--- Warnings from npm??
-
-//--- So, settings for:
-//- local dependencies (project) or external dependencies (temp-project)
-//- directory for temp project (default is storageUri for extension)
-//- in case local, the version settings should be disabled.
-//- 4 version settings, for each package. (react, react-dom, react-mail-components, react-mail)
-//- live server or automatic render
-//- showbydefualt (boolean)
-
-//--- Enhacnements.
-//- Support DENO (enviornment, node or deno or bun)
-//- Support storybook approach
-//- support different emails at the same time. (will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any)
-  //- we can do a simple cache instead of having multiple files.
-//- support multiple project with different dependencies (external projects) ... maybe a setting for multiple projects or a single project.
 
 const extensionService = new ExtensionService();
 

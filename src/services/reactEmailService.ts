@@ -71,6 +71,7 @@ export class ReactEmailService {
     LoggingService.log(`Setting up external project '${this.extensionConfiguration.renderApproach}' approach`);
     this.isSettingProjectUp = true;
     PreviewPanelService.setLoadingState();
+    StatusBarService.setLoadingState();
 
     LoggingService.log(`Main Email file at ${this.mainEmailFilePath.fsPath}`);
 
@@ -139,6 +140,7 @@ export class ReactEmailService {
       this.updateAndRenderEmail(this.latestEmailDocument);
     } else {
       PreviewPanelService.setNoneState();
+      StatusBarService.setDefaultState();
     }
   }
 
