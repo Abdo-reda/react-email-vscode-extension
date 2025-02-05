@@ -3,7 +3,7 @@ import { ChildProcess, exec, execSync, spawn } from "child_process";
 import { ExtensionConfigurations } from "../constants/configurationEnum";
 import { LoggingService } from "../services/loggingService";
 
-const config = vscode.workspace.getConfiguration("react-email");
+const config = vscode.workspace.getConfiguration("react-email-renderer");
 
 export function getConfiguration<T>(
   configuration: ExtensionConfigurations,
@@ -24,7 +24,7 @@ export function isConfigurationChanged(
   event: vscode.ConfigurationChangeEvent,
   configuration: ExtensionConfigurations,
 ): boolean {
-  return event.affectsConfiguration(`react-email.${configuration}`);
+  return event.affectsConfiguration(`react-email-renderer.${configuration}`);
 }
 
 export function showProgressMessageV2(title: string, cancellable: boolean = true, timeInSec = 10) {
@@ -156,13 +156,13 @@ export function getActiveDocument(): vscode.TextDocument|undefined {
 }
 
 export function showInfoMessage(msg: string): void {
-  vscode.window.showInformationMessage(`${msg}`);
+  vscode.window.showInformationMessage(`[React-Email-Renderer]: ${msg}`);
 }
 
 export function showWarningMessage(msg: string): void {
-  vscode.window.showWarningMessage(`${msg}`);
+  vscode.window.showWarningMessage(`[React-Email-Renderer]: ${msg}`);
 }
 
 export function showErrorMessage(msg: string): void {
-  vscode.window.showErrorMessage(`${msg}`);
+  vscode.window.showErrorMessage(`[React-Email-Renderer]: ${msg}`);
 }

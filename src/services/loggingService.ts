@@ -22,16 +22,16 @@ export class LoggingService {
 
     public static log(message: string, ...args: any[]): void {
         this.instance.outputChannel.info(`${message}`);
-        console.log(`[react-email]: ${message}`, ...args);
+        console.log(`[react-email-renderer]: ${message}`, ...args);
     }
 
     public static warn(message: string, ...args: any[]): void {
         this.instance.outputChannel.warn(`${message}`);
-        console.warn(`[react-email]: ${message}`, ...args);
+        console.warn(`[react-email-renderer]: ${message}`, ...args);
     }
 
     public static error(message: string, ...args: any[]): void {
         this.instance.outputChannel.error(`${message}`);
-        console.error(`[react-email]: ${message}`, ...args);
+        console.error(`[react-email-renderer]: ${message}`, ...args);
     }
 }

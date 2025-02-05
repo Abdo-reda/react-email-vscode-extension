@@ -1,17 +1,13 @@
-import * as vscode from "vscode";
 import { IPackageManagerService } from "../../interfaces/packageManagerServiceInterface";
 import { IPackageRegistry } from "../../interfaces/packageRegistryInterface";
-import { LoggingService } from "../loggingService";
 import { PackageManagerEnum } from "../../constants/packageManagerEnum";
 import { ISimplePackage } from "../../interfaces/simplePackageInterface";
-import { IRenderEmail } from "../../interfaces/renderEmailOutput";
-import { ChildProcess } from "child_process";
+import { runCommandInBackground } from "../../utilities/vscodeUtilities";
+import { LoggingService } from "../loggingService";
 
 export abstract class BasePackageManagerService implements IPackageManagerService {
   abstract packageManager: PackageManagerEnum;
   private packageVersions = new Map<string, string[]>(); //TODO: cache in global state or something
-  emailRenderScriptProcess: ChildProcess | undefined;
-  emailServerTerminal: vscode.Terminal | undefined;
 
   /**
    * Retrieves the package metadata from npm registry. Does not depend on package manager, they all reference the same registry.
@@ -30,45 +26,27 @@ export abstract class BasePackageManagerService implements IPackageManagerServic
     return (await this.getPackageVersions(name)).some((v) => v === version);
   }
 
-  async restartEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor) {
-    await this.killEmailServer();
-    this.runEmailServer(port, projectPath, showTerminal, terminalColor);
+  executeCommand(
+    command: string,
+    cwd: string | undefined,
+    errorCallback: (output: string) => void = () => {},
+    successCallback: (output: string) => void = () => {}
+  ): void {
+    LoggingService.log(`Package Manager ${this.packageManager} Executing command '${this.getCommandFormat(command)}'`);
+    runCommandInBackground(
+      this.getCommandFormat(command),
+      cwd,
+      errorCallback,
+      successCallback
+    );
   }
 
-  isEmailServerRunning(): boolean {
-    if (!this.emailServerTerminal) return false;
-    return !this.emailServerTerminal.exitStatus; 
-  }
-
-  isRenderScriptRunning(): boolean {
-    if (!this.emailRenderScriptProcess) return false;
-    return !this.emailRenderScriptProcess.killed;
-  }
-
-  async killEmailServer() {
-    LoggingService.log(`Killing Email Server`);
-    await this.emailServerTerminal?.dispose();
-  }
-
-  showEmailServer(): void {
-    this.emailServerTerminal?.show();
-  }
-  
-  abstract setupEmailServerProject(_cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
-
-  killRenderScript():void {
-    if (!this.emailRenderScriptProcess) return;
-    const result = this.emailRenderScriptProcess.kill();
-    if (!result) {
-      LoggingService.warn("There was an error killing the render script process.");
-      return;
-    }
-    LoggingService.log("Killed render script process successffully.");
-    this.emailRenderScriptProcess = undefined;
-  }
-
-  abstract runRenderScript(cwd: string | undefined, _successCallback: (output: IRenderEmail) => void, _errorCallback: (error: unknown) => void): void;
   abstract checkInstalled(): boolean;
-  abstract installPackages(_packages: ISimplePackage[], _cwd: string | undefined, _errorCallback?: (output: string) => void, _successCallback?: (output: string) => void): void;
-  abstract runEmailServer(port: number, projectPath: vscode.Uri, showTerminal: boolean, terminalColor: vscode.ThemeColor): void;
+  abstract getCommandFormat(command: string): string;
+  abstract installPackages(
+    _packages: ISimplePackage[],
+    _cwd: string | undefined,
+    _errorCallback?: (output: string) => void,
+    _successCallback?: (output: string) => void
+  ): void;
 }

@@ -4,6 +4,7 @@ import {
   getErrorWebviewContent,
   getLoadingWebviewContent,
   getNoneWebviewContent,
+  getRenderingWebviewContent,
 } from "../constants/previewWebviewConstant";
 import { IPanelState } from "../interfaces/panelStateInterface";
 import { IRenderEmail } from "../interfaces/renderEmailOutput";
@@ -32,11 +33,20 @@ export class PreviewPanelService {
     return !this.previewPanel;
   }
 
+  static setRenderingState(title: string): void {
+    this.panelState = PreviewPanelStateEnum.RENDERING;
+    this.setEmailTitle(title);
+    this.refreshPanel();
+  }
+
   static setEmailTitle(title: string): void {
-    this.panelStateInfo.emailTitle = `${title}`;
+    this.panelStateInfo.emailTitle = title;
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
+    if (this.panelStateInfo.emailOutput.html === emailOutput.html && this.panelState === PreviewPanelStateEnum.PREVIEW) {
+      return;
+    }
     this.panelState = PreviewPanelStateEnum.PREVIEW;
     this.panelStateInfo.emailOutput = emailOutput;
     this.refreshPanel();
@@ -74,7 +84,7 @@ export class PreviewPanelService {
 
   private static createPanel(): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
-      "react-email.server",
+      "react-email-renderer.server",
       "React Email Preview",
       {
         viewColumn: vscode.ViewColumn.Beside,
@@ -116,6 +126,8 @@ export class PreviewPanelService {
         return getLoadingWebviewContent();
       case PreviewPanelStateEnum.ERROR:
         return getErrorWebviewContent(this.panelStateInfo.emailErrors);
+      case PreviewPanelStateEnum.RENDERING:
+        return getRenderingWebviewContent(); //TODO: fix previews
       case PreviewPanelStateEnum.PREVIEW:
         return this.panelStateInfo.emailOutput.html; //TODO: more here probably?
       default:
@@ -126,6 +138,6 @@ export class PreviewPanelService {
   private static getTitle(): string {
     if (this.panelStateInfo.emailTitle)
       return `${this.panelStateInfo.emailTitle}[preview]`;
-    return "React Email Preview";
+    return "React Email [preview]";
   }
 }

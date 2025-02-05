@@ -6,16 +6,18 @@ import { RenderOnEnum } from "../constants/renderOnEnum";
 import { PackagesEnum } from "../constants/packagesEnum";
 import { getConfiguration } from "../utilities/vscodeUtilities";
 import { ExtensionConfigurations } from "../constants/configurationEnum";
+import { RuntimeEnviornmentEnum } from "../constants/runtimeEnvironmentEnum";
 
-const LATEST = "latest";
-const DEFAULT_EXTENSION_URI = "extensionUri:";
-const DEFAULT_SERVER_PORT = 7777;
-const DEFAULT_TERMINAL_COLOR = "terminal.ansiCyan";
+export const LATEST = "latest";
+export const DEFAULT_EXTENSION_URI = "extensionUri:";
+export const DEFAULT_SERVER_PORT = 7777;
+export const DEFAULT_TERMINAL_COLOR = "terminal.ansiCyan";
 
 export class ExtensionConfigurationService implements IExtensionConfiguration {
   renderApproach = RenderApproachEnum.SERVER;
   dependencies = DependenciesEnum.EXTERNAL;
   renderOn = RenderOnEnum.ON_SAVE;
+  runtimeEnviornment = RuntimeEnviornmentEnum.NODE;
   packageManager = PackageManagerEnum.NPM;
   packages = {
     directory: DEFAULT_EXTENSION_URI,
@@ -24,16 +26,17 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
     reactVersion: LATEST,
     reactDomVersion: LATEST,
   };
-  server = {
+  server = { //TODO: rename from server to terminal, update configuration
     port: DEFAULT_SERVER_PORT,
     terminalColor: DEFAULT_TERMINAL_COLOR,
-    terminalVisibility: true,
+    terminalVisible: false,
   };
 
   loadConfiguration(): void {
       this.renderApproach = getConfiguration(ExtensionConfigurations.RENDER_APPROACH, this.renderApproach);
       this.dependencies = getConfiguration(ExtensionConfigurations.DEPENDENCIES, this.dependencies);
       this.renderOn = getConfiguration(ExtensionConfigurations.RENDER_ON, this.renderOn);
+      this.runtimeEnviornment = getConfiguration(ExtensionConfigurations.RUNTIME_ENVIORNMENT, this.runtimeEnviornment);
       this.packageManager = getConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, this.packageManager);
       this.packages = {
         directory: getConfiguration(ExtensionConfigurations.DIRECTORY, this.packages.directory),
@@ -44,7 +47,7 @@ export class ExtensionConfigurationService implements IExtensionConfiguration {
       };
       this.server = {
         port: getConfiguration(ExtensionConfigurations.SERVER_PORT, this.server.port),
-        terminalVisibility: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_VISIBILITY, this.server.terminalVisibility),
+        terminalVisible: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_VISIBLE, this.server.terminalVisible),
         terminalColor: getConfiguration(ExtensionConfigurations.SERVER_TERMINAL_COLOR, this.server.terminalColor),
       };
   }

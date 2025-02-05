@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
     "menus": {
       "editor/title": [
         {
-          "command": "react-email.preview",
+          "command": "react-email-renderer.preview",
           "when": "editorLangId == typescriptreact || editorLangId == javascriptreact",
           "group": "navigation"
         }
@@ -41,20 +41,30 @@
     },
     "commands": [
       {
-        "command": "react-email.preview",
-        "title": "React Email: Preview Email",
+        "command": "react-email-renderer.preview",
+        "title": "React Email Renderer: Preview Email",
         "icon": "$(heart)"
       },
       {
-        "command": "react-email.selectPackageVersion",
-        "title": "React Email: Update Package Version Configuration",
+        "command": "react-email-renderer.selectPackageVersion",
+        "title": "React Email Renderer: Update Package Version Configuration",
         "icon": "$(versions)"
+      },
+      {
+        "command": "react-email-renderer.toggleRenderingTerminalVisibility",
+        "title": "React Email Renderer: Show and Hide The Render Terminal",
+        "icon": "$(terminal-view-icon)"
+      },
+      {
+        "command": "react-email-renderer.restartRenderTerminal",
+        "title": "React Email Renderer: Restart the Render Process if its Running",
+        "icon": "$(terminal-view-icon)"
       }
     ],
     "configuration": {
-      "title": "React Email",
+      "title": "React Email Renderer",
       "properties": {
-        "react-email.renderApproach": {
+        "react-email-renderer.renderApproach": {
           "type": "string",
           "enum": [
             "server",
@@ -68,21 +78,28 @@
           "order": 0,
           "markdownDescription": "The Approach used to render the email."
         },
-        "react-email.dependencies": {
+        "react-email-renderer.dependencies": {
           "type": "string",
           "enum": [
-            "external",
-            "local"
+            "external"
           ],
           "markdownEnumDescriptions": [
-            "`external` sets up an exteranl project used to render all emails. Has the Advantage that dependencies do not need to be installed in the current project.",
-            "`local` uses the dependencies that are located inside of the project."
+            "`external` sets up an exteranl project used to render all emails. Has the Advantage that dependencies do not need to be installed in the current project."
           ],
           "default": "external",
           "order": 0,
-          "markdownDescription": "Which dependencies will be used to render the email. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
+          "markdownDescription": "Which dependencies will be used to render the email. Currently, only `external` option is allowed. Later, a `local` option that uses the active project dependencies would be supported. [Reference](https://react.email/docs/getting-started/manual-setup#2-install-dependencies)"
         },
-        "react-email.packageManager": {
+        "react-email-renderer.runtimeEnviornment": {
+          "type": "string",
+          "enum": [
+            "node"
+          ],
+          "default": "node",
+          "order": 0,
+          "markdownDescription": "The Runtime Enviornment Used to execute scripts. Currently only node is supported. Later, support for deno, bun will be added."
+        },
+        "react-email-renderer.packageManager": {
           "type": "string",
           "enum": [
             "npm"
@@ -91,7 +108,7 @@
           "order": 0,
           "markdownDescription": "The Package Manager Used to install and run Dependencies. Currently only npm is supported. Later, support for yarn, pnpm, bun will be added."
         },
-        "react-email.renderOn": {
+        "react-email-renderer.renderOn": {
           "type": "string",
           "enum": [
             "OnSave",
@@ -105,60 +122,60 @@
           "order": 0,
           "markdownDescription": "When should the email be rerendered and updated."
         },
-        "react-email.packages.directory": {
+        "react-email-renderer.packages.directory": {
           "type": "string",
           "format": "uri",
           "default": "extensionUri:",
           "order": 1,
-          "markdownDescription": "The path for the external project that will be used to render the email. By default the `extensionUri:` - The uri of the directory containing the extension - is used.  \n  \nCommonly located at  \n- windows: `C:\\Users\\<Username>\\.vscode\\extensions\\<extension-name-version>\\`.\n - mac: `~/.vscode/extensions/<extension-name-version>/`.\n - linux: `~/.vscode/extensions/<extension-name-version>/`.  \n   \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._ "
+          "markdownDescription": "The path for the external project that will be used to render the email. By default the `extensionUri:` - The uri of the directory containing the extension - is used.  \n  \nCommonly located at  \n- windows: `C:\\Users\\<Username>\\.vscode\\extensions\\<extension-name-version>\\`.\n - mac: `~/.vscode/extensions/<extension-name-version>/`.\n - linux: `~/.vscode/extensions/<extension-name-version>/`.  \n   \n_This setting is ignored if `#react-email-renderer.dependencies#` is set to `local`._ "
         },
-        "react-email.packages.reactEmailRenderVersion": {
+        "react-email-renderer.packages.reactEmailRenderVersion": {
           "type": "string",
           "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/render?activeTab=versions) of `@react-email/render` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/render?activeTab=versions) of `@react-email/render` used.  \nThe command `react-email-renderer.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email-renderer.dependencies#` is set to `local`._"
         },
-        "react-email.packages.reactEmailComponentsVersion": {
+        "react-email-renderer.packages.reactEmailComponentsVersion": {
           "type": "string",
           "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/components?activeTab=versions) of `@react-email/components` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/@react-email/components?activeTab=versions) of `@react-email/components` used.  \nThe command `react-email-renderer.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email-renderer.dependencies#` is set to `local`._"
         },
-        "react-email.packages.reactVersion": {
+        "react-email-renderer.packages.reactVersion": {
           "type": "string",
           "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/react?activeTab=versions) of `react` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/react?activeTab=versions) of `react` used.  \nThe command `react-email-renderer.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
         },
-        "react-email.packages.reactDomVersion": {
+        "react-email-renderer.packages.reactDomVersion": {
           "type": "string",
           "pattern": "(^latest$)|^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
           "patternErrorMessage": "The value must match the SemVer pattern 'x.x.x' or the Value 'latest'.",
           "default": "latest",
           "order": 1,
-          "markdownDescription": "The [version](https://www.npmjs.com/package/react-dom?activeTab=versions) of `react-dom` used.  \nThe command `react-email.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email.dependencies#` is set to `local`._"
+          "markdownDescription": "The [version](https://www.npmjs.com/package/react-dom?activeTab=versions) of `react-dom` used.  \nThe command `react-email-renderer.selectPackageVersion` can be used to help selecting a valid version.  \n  \n_This setting is ignored if `#react-email-renderer.dependencies#` is set to `local`._"
         },
-        "react-email.server.port": {
+        "react-email-renderer.server.port": {
           "type": "number",
           "default": 7777,
           "order": 2,
           "maximum": 65535,
           "minimum": 0,
-          "markdownDescription": "The Port that the Live Render Server will run on. Make sure that the port is not reserved, assigned or in use for the extension to work.  \n  \n_This setting is ignored if `#react-email.renderApproach#` is set to `script`._"
+          "markdownDescription": "The Port that the Live Render Server will run on. Make sure that the port is not reserved, assigned or in use for the extension to work.  \n  \n_This setting is ignored if `#react-email-renderer.renderApproach#` is set to `script`._"
         },
-        "react-email.server.terminalVisibility": {
+        "react-email-renderer.server.terminalVisible": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "order": 2,
-          "markdownDescription": "Controls the visiblity behaviour of the server terminal when the server runs. By default, the server terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email.showServerTerminal` command.  \n  \n_This setting has no effect if `#react-email.renderApproach#` is set to `script`._"
+          "markdownDescription": "Controls the visiblity behaviour of the server terminal when rendering. By default, the terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email-renderer.toggleRenderingTerminalVisibility` command."
         },
-        "react-email.server.terminalColor": {
+        "react-email-renderer.server.terminalColor": {
           "type": "string",
           "enum": [
             "terminal.ansiBrightBlack",
@@ -198,7 +215,7 @@
           ],
           "default": "terminal.ansiCyan",
           "order": 2,
-          "markdownDescription": "The Color of the Render Server Terminal. This affects nothing and is only for cosmetic purposes. The choice is limited to vscode built-in colors.  \n  \n_This setting has no effect if `#react-email.renderApproach#` is set to `script`_"
+          "markdownDescription": "The Color of the Render Server Terminal. This affects nothing and is only for cosmetic purposes. The choice is limited to vscode built-in colors."
         }
       }
     }

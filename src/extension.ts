@@ -1,17 +1,14 @@
 import * as vscode from "vscode";
 import { ExtensionService } from "./services/extensionService";
 
-//NOW:
-//- implemenet the watch tsx approach.
-//- implement vite server approach
-//- see into implementing a status bar
-//- see into implement the toolbar.
-//- optimize render script somehow.
-//- loading indicator.
-//- sometimes it does not work lol :)
+//TODO:
+//- make sure script is working
+//- custom icons
+//- status bar
+//- preview panel toolbar
+//- react-email-renderer.packages.directory (update the usage of directory)
 
 //---- Tab feature:
-//- the tab title is filename[preview]
 //- the tab icon is react email maybe
 //- the tab has a toolbar:
 //- color picker options to change the background.
@@ -24,31 +21,7 @@ import { ExtensionService } from "./services/extensionService";
 //- the tab shows a preview/render of the output of the render method or localhost url
 
 //TODO:
-//--- Make sure that the server runs after installation is complete ... I think ...
-//--- Fix the order of the configuration
-//--- make the status bar service a signleton maybe ...
 //--- Warnings from npm??
-
-//--- functionality
-//- status bar
-// (green, server is live, hover, tells you the server is live at what (url). --> opens the tab in case it was closed and shows the terminal.
-// (red, server was unable to run) --> clicks, opens terminal/logs
-// (grey, nothing is happening) --> runs the server and opens the tab
-//- add support for deno depenednecies
-
-//--- So, settings for:
-//- local dependencies (project) or external dependencies (temp-project)
-//- directory for temp project (default is storageUri for extension)
-//- in case local, the version settings should be disabled.
-//- 4 version settings, for each package. (react, react-dom, react-mail-components, react-mail)
-//- live server or automatic render
-//- showbydefualt (boolean)
-
-//--- Enhacnements.
-//- Support DENO (enviornment, node or deno or bun)
-//- MORE THAN ONE EMAIL AT THE SAME TIME.
-//- support different emails at the same time. (will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any)
-//- support multiple project with different dependencies (external projects) ... somehow.
 
 const extensionService = new ExtensionService();
 
