@@ -12,4 +12,7 @@
     "noUnusedParameters": true
   },
   "exclude": ["project", "assets"],
+  "references": [
+    { "path": "./assets/tsconfig.json" },
+  ]
 }

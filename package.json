@@ -221,8 +221,8 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p assets/tsconfig.json",
-    "watch": "tsc -p tsconfig.json -p assets/tsconfig.json --watch",
+    "build": "tsc --build",
+    "watch": "tsc --build --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",

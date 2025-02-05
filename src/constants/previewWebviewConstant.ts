@@ -19,7 +19,7 @@ export function getTemplateWebviewContent(cpcSource: string, nonce: string, styl
       style-src ${cpcSource}; 
       img-src ${cpcSource} https:; 
       script-src 'nonce-${nonce}';
-      iframe-src http://localhost:* https://localhost:*;"
+      frame-src http://localhost:* https://localhost:*;"
     >
     <link href="${styleUri}" rel="stylesheet">
 </head>

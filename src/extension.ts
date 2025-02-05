@@ -9,7 +9,7 @@ import { ExtensionService } from "./services/extensionService";
 //- react-email-renderer.packages.directory (update the usage of directory)
 
 //---- Tab feature:
-//- the tab icon is react email maybe
+//- the tab icon is react email maybe ..
 //- the tab has a toolbar:
 //- color picker options to change the background.
 //- a simple gmail preview option

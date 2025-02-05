@@ -1,4 +1,6 @@
-console.log("---- I am working");
+console.log("---- I am working :)");
+
+setInterval(() => console.log('--- 1'), 1000);
 
 interface vscode {
   postMessage(message: any): void;
@@ -12,7 +14,7 @@ function replaceMainContent(html: string) {
   mainDiv.innerHTML = html;
 }
 
-replaceMainContent("----- replaced :)")
+replaceMainContent("----- replaced :)");
 
 function listenToVscodeMessages() {
   window.addEventListener("message", (event) => {
