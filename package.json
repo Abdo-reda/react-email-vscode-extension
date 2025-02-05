@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.4.1",
+  "version": "0.5.2",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -221,8 +221,8 @@
     }
   },
   "scripts": {
-    "build": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "build": "tsc -p tsconfig.json && tsc -p assets/tsconfig.json",
+    "watch": "tsc -p tsconfig.json -p assets/tsconfig.json --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",

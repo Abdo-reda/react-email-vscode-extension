@@ -1,63 +1,55 @@
-export function getLoadingWebviewContent() {
+import * as vscode from "vscode";
+
+//TODO: make sure to take into consideration https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content
+
+// <meta
+// http-equiv="Content-Security-Policy"
+// content="default-src 'none'; iframe-src ${webview.cspSource} http:;"
+// />
+
+export function getTemplateWebviewContent(cpcSource: string, nonce: string, styleUri: vscode.Uri, scriptUri: vscode.Uri) {
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .loader {
-            width: 50px;
-            height: 50px;
-            margin: 20px;
-            animation: spin 2s linear infinite;
-        }
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        .message {
-            font-size: 18px;
-        }
-    </style>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'none'; 
+      style-src ${cpcSource}; 
+      img-src ${cpcSource} https:; 
+      script-src 'nonce-${nonce}';
+      iframe-src http://localhost:* https://localhost:*;"
+    >
+    <link href="${styleUri}" rel="stylesheet">
 </head>
 <body>
-    <svg class="loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="40" stroke="#555" stroke-width="10" fill="none" stroke-dasharray="250" stroke-dashoffset="48">
-        </circle>
-    </svg>
-    <div class="message">Setting up stuff...</div>
+  <div id="toolbar">
+  </div>
+  <div id="main">
+    <h1> this is a template </h1>
+  </div>
+  <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>
 `;
 }
 
+export function getLoadingWebviewContent() {
+  return `
+  <div class="loader-container">
+    <svg class="loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" stroke="#555" stroke-width="10" fill="none" stroke-dasharray="250" stroke-dashoffset="48">
+        </circle>
+    </svg>
+    <h2>Setting up stuff...</h2>
+  </div>
+`;
+}
+
 export function getNoneWebviewContent() {
   return `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-          body { margin: auto; padding: 0; }
-      </style>
-  </head>
-  <body>
-      <h1> NONE </h1>
-  </body>
-  </html>
+    <h1> NONE </h1>
   `;
 }
 
@@ -115,22 +107,12 @@ export function getErrorWebviewContent(error: string) {
 
 export function getServerWebviewContent(port: number) {
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            body { margin: auto; padding: 0; }
-        </style>
-    </head>
-    <body>
-       <iframe src="http://localhost:${port}" style="border: none; width: 100%; height: 100vh;" sandbox="allow-scripts allow-same-origin"></iframe>
-    </body>
-    </html>
-    `;
+  <iframe src="http://localhost:${port}" style="border: none; width: 100%; height: 100vh;" sandbox="allow-scripts allow-same-origin"></iframe>
+`;
 }
 
 export function getRenderingWebviewContent() {
-  return `RENDERING`;
+  return `
+    <h1> RENDERING </h1>
+  `;
 }

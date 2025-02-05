@@ -7,8 +7,8 @@ import * as vscode from "vscode";
 // (grey, nothing is happening) --> runs the server and opens the tab - server is closed / ended
 
 export class StatusBarService {
-    private statusBar: vscode.StatusBarItem;
     private static _instance: StatusBarService;
+    private statusBar: vscode.StatusBarItem;
     private static defaultColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.foreground');
     private static errorColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.errorForeground');
     private static successColor: vscode.ThemeColor = new vscode.ThemeColor('notebookStatusSuccessIcon.foreground');
