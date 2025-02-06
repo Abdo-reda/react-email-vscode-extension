@@ -4,7 +4,6 @@ import { ExtensionService } from "./services/extensionService";
 //TODO:
 //- make sure script is working
 //- custom icons
-//- status bar
 //- preview panel toolbar
 //- react-email-renderer.packages.directory (update the usage of directory)
 

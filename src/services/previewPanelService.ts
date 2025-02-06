@@ -10,6 +10,8 @@ import {
 import { IPanelState } from "../interfaces/panelStateInterface";
 import { IRenderEmail } from "../interfaces/renderEmailOutput";
 import crypto from "node:crypto";
+import { PreviewPanelCommandEnum } from "../constants/previewPanelCommandEnum";
+import { IPanelHtmlMessage } from "../interfaces/panelMessageInterface";
 
 export class PreviewPanelService {
   private static previewPanel: undefined | vscode.WebviewPanel;
@@ -35,14 +37,14 @@ export class PreviewPanelService {
     return !this.previewPanel;
   }
 
+  static setEmailTitle(title: string): void {
+    this.panelStateInfo.emailTitle = title;
+  }
+
   static setRenderingState(title: string): void {
     this.panelState = PreviewPanelStateEnum.RENDERING;
     this.setEmailTitle(title);
     this.refreshPanel();
-  }
-
-  static setEmailTitle(title: string): void {
-    this.panelStateInfo.emailTitle = title;
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
@@ -81,7 +83,7 @@ export class PreviewPanelService {
   private static refreshPanel(): void {
     if (!this.previewPanel) return;
     this.previewPanel.title = this.getTitle();
-    this.previewPanel.webview.html = this.getHtmlContent();
+    this.setMainContent(this.getHtmlContent());
   }
 
   private static createPanel(): vscode.WebviewPanel {
@@ -94,7 +96,6 @@ export class PreviewPanelService {
       },
       {
         enableScripts: true,
-        // localResourceRoots: [],
         localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'assets/previewPanel')]
       },
     );
@@ -118,36 +119,32 @@ export class PreviewPanelService {
       this.context.subscriptions
     );
 
+    this.setContainerHtmlContent(panel);
+
     return panel;
   }
 
-  private static setContainerHtmlContent() {
-    
+  private static setContainerHtmlContent(panel: vscode.WebviewPanel) {
+    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelScript.js'));
+    const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelStyle.css'));
+    panel.webview.html = getTemplateWebviewContent(panel.webview.cspSource, this.getNonce(), styleUri, scriptUri);
   }
 
   private static getHtmlContent(): string {
-    if (!this.previewPanel) return '';
-    console.log('----- cpsSource', this.previewPanel.webview.cspSource);
-    const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelScript.js');
-		const scriptUri = this.previewPanel.webview.asWebviewUri(scriptPath);
-    const stylePath = vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelStyle.css');
-    const styleUri = this.previewPanel.webview.asWebviewUri(stylePath);
-    console.log('----- scriptPath', scriptPath.fsPath, scriptUri.fsPath);
-    return getTemplateWebviewContent(this.previewPanel.webview.cspSource, this.getNonce(), styleUri, scriptUri);
-    // switch (this.panelState) {
-    //   case PreviewPanelStateEnum.NONE:
-    //     return getNoneWebviewContent();
-    //   case PreviewPanelStateEnum.LOADING:
-    //     return getLoadingWebviewContent();
-    //   case PreviewPanelStateEnum.ERROR:
-    //     return getErrorWebviewContent(this.panelStateInfo.emailErrors);
-    //   case PreviewPanelStateEnum.RENDERING:
-    //     return getRenderingWebviewContent(); //TODO: fix previews
-    //   case PreviewPanelStateEnum.PREVIEW:
-    //     return this.panelStateInfo.emailOutput.html; //TODO: more here probably?
-    //   default:
-    //     return getNoneWebviewContent();
-    // }
+    switch (this.panelState) {
+      case PreviewPanelStateEnum.NONE:
+        return getNoneWebviewContent();
+      case PreviewPanelStateEnum.LOADING:
+        return getLoadingWebviewContent();
+      case PreviewPanelStateEnum.ERROR:
+        return getErrorWebviewContent(this.panelStateInfo.emailErrors);
+      case PreviewPanelStateEnum.RENDERING:
+        return getRenderingWebviewContent(); //TODO: fix previews
+      case PreviewPanelStateEnum.PREVIEW:
+        return this.panelStateInfo.emailOutput.html; //TODO: more here probably?
+      default:
+        return getNoneWebviewContent();
+    }
   }
 
   private static getTitle(): string {
@@ -157,8 +154,14 @@ export class PreviewPanelService {
   }
 
   
-  private static setMainContent(_: string): void {
-    // this.previewPanel?.webview.html
+  private static setMainContent(htmlContent: string): void {
+    const message: IPanelHtmlMessage = {
+      command: PreviewPanelCommandEnum.SET_MAIN_CONTENT,
+      data: {
+        html: htmlContent,
+      }
+    };
+    this.previewPanel!.webview.postMessage(message);
   }
 
   private static getNonce(): string {

@@ -1,12 +1,5 @@
 import * as vscode from "vscode";
 
-//TODO: make sure to take into consideration https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content
-
-// <meta
-// http-equiv="Content-Security-Policy"
-// content="default-src 'none'; iframe-src ${webview.cspSource} http:;"
-// />
-
 export function getTemplateWebviewContent(cpcSource: string, nonce: string, styleUri: vscode.Uri, scriptUri: vscode.Uri) {
   return `
 <!DOCTYPE html>
@@ -25,6 +18,7 @@ export function getTemplateWebviewContent(cpcSource: string, nonce: string, styl
 </head>
 <body>
   <div id="toolbar">
+  <button id="zoom"> zoom </button>
   </div>
   <div id="main">
     <h1> this is a template </h1>
@@ -55,59 +49,18 @@ export function getNoneWebviewContent() {
 
 export function getErrorWebviewContent(error: string) {
   return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-
-    .error-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .error-box {
-      border: 1px solid red;
-      border-radius: 8px;
-      background-color: #ffecec;
-      color: #b00020;
-      padding: 1rem;
-      word-wrap: break-word;
-    }
-
-    .error-heading {
-      font-size: 1.5rem;
-      margin: 0 0 1rem;
-      color: #b00020;
-    }
-
-    .error-msg {
-      font-size: 1rem;
-      margin: 0;
-    }
-  </style>
-</head>
-<body>
   <div class="error-container">
     <div class="error-box">
       <h1 class="error-heading">Something Went Wrong!</h1>
       <p class="error-msg">${error}</p>
     </div>
   </div>
-</body>
-</html>
   `;
 }
-
+//  sandbox="allow-scripts allow-same-origin"
 export function getServerWebviewContent(port: number) {
   return `
-  <iframe src="http://localhost:${port}" style="border: none; width: 100%; height: 100vh;" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe id="frame" src="http://localhost:${port}"></iframe>
 `;
 }
 

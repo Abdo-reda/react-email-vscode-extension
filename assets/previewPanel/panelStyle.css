@@ -1,13 +1,21 @@
+/* TODO: make sure to take into consideration https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content */
+
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main {
+  text-align: center;
+  flex-grow: 1;
 }
 
 #toolbar {
-}
-
-h1 {
-  color: green;
+  height: 28px;
 }
 
 .loader-container {
@@ -23,6 +31,40 @@ h1 {
   height: 50px;
   margin: 20px;
   animation: spin 2s linear infinite;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.error-box {
+  border: 1px solid red;
+  border-radius: 8px;
+  background-color: #ffecec;
+  color: #b00020;
+  padding: 1rem;
+  word-wrap: break-word;
+}
+
+.error-heading {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+  color: #b00020;
+}
+
+.error-msg {
+  font-size: 1rem;
+  margin: 0;
+}
+
+iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+  transform-origin: top left;
 }
 
 @keyframes spin {
