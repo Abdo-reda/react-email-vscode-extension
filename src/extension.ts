@@ -17,7 +17,6 @@ import { ExtensionService } from "./services/extensionService";
 //- source code viewer
 //- source code inspector
 //- the tab has a loading indicator somewhere (maybe on its bar on the top right)
-//- the tab shows a preview/render of the output of the render method or localhost url
 
 //TODO:
 //--- Warnings from npm??

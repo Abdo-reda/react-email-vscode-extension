@@ -76,7 +76,7 @@ export class StatusBarService {
     
     private setDefaultCommand(): void 
     {
-        this.statusBar.command = 'react-email-renderer.toggleRenderingTerminalVisibility';
+        this.statusBar.command = 'react-email-renderer.toggleRenderTerminal';
     }
 
     private setErrorCommand(): void

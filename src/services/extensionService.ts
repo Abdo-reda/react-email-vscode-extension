@@ -64,7 +64,7 @@ export class ExtensionService {
     );
 
     disposables.push(
-      vscode.commands.registerCommand("react-email-renderer.toggleRenderingTerminalVisibility", () => {
+      vscode.commands.registerCommand("react-email-renderer.toggleRenderTerminal", () => {
         this.terminalService.toggleVisibility();
       })
     );

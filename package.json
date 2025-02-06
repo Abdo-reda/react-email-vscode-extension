@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -51,7 +51,7 @@
         "icon": "$(versions)"
       },
       {
-        "command": "react-email-renderer.toggleRenderingTerminalVisibility",
+        "command": "react-email-renderer.toggleRenderTerminal",
         "title": "React Email Renderer: Show and Hide The Render Terminal",
         "icon": "$(terminal-view-icon)"
       },
@@ -173,7 +173,7 @@
           "type": "boolean",
           "default": false,
           "order": 2,
-          "markdownDescription": "Controls the visiblity behaviour of the server terminal when rendering. By default, the terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email-renderer.toggleRenderingTerminalVisibility` command."
+          "markdownDescription": "Controls the visiblity behaviour of the server terminal when rendering. By default, the terminal is hidden and can be shown by clicking on the status bar icon or running the `react-email-renderer.toggleRenderTerminal` command."
         },
         "react-email-renderer.server.terminalColor": {
           "type": "string",
