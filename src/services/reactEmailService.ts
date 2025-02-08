@@ -211,7 +211,7 @@ export class ReactEmailService {
     }
   }
 
-  private onScriptEmailRenderCallback(output: string, isError: boolean): void {
+  private onScriptEmailRenderCallback(_output: string, isError: boolean): void {
     LoggingService.log(`Executed render email script, isError: ${isError}`);
     if (isError) {
       // LoggingService.warn("There was an error while rendering the email.");
