@@ -112,7 +112,7 @@ export function runCommandInBackground(
       return;
     }
     if (stderr) {
-      showWarningMessage(stderr);
+      LoggingService.warn(stderr);
     }
     successCallback(stdout);
   });
@@ -156,13 +156,13 @@ export function getActiveDocument(): vscode.TextDocument|undefined {
 }
 
 export function showInfoMessage(msg: string): void {
-  vscode.window.showInformationMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showInformationMessage(`[React Email Renderer]: ${msg}`);
 }
 
 export function showWarningMessage(msg: string): void {
-  vscode.window.showWarningMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showWarningMessage(`[React Email Renderer]: ${msg}`);
 }
 
 export function showErrorMessage(msg: string): void {
-  vscode.window.showErrorMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showErrorMessage(`[React Email Renderer]: ${msg}`);
 }

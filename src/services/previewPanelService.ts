@@ -12,12 +12,14 @@ import { IRenderEmail } from "../interfaces/renderEmailOutput";
 import crypto from "node:crypto";
 import { PreviewPanelCommandEnum } from "../constants/previewPanelCommandEnum";
 import { IPanelHtmlMessage } from "../interfaces/panelMessageInterface";
+import { ToolbarService } from "./toolbarService";
 
 export class PreviewPanelService {
   private static previewPanel: undefined | vscode.WebviewPanel;
   private static context: vscode.ExtensionContext;
   private static panelState: PreviewPanelStateEnum = PreviewPanelStateEnum.NONE;
   private static panelStateInfo: IPanelState;
+  private static toolbarService: ToolbarService = new ToolbarService();
 
   static init(context: vscode.ExtensionContext) {
     this.context = context;
@@ -96,24 +98,24 @@ export class PreviewPanelService {
       },
       {
         enableScripts: true,
-        localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'assets/previewPanel')]
+        localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel'), vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode/codicons', 'dist')]
       },
     );
 
-    // panel.iconPath = vscode.Uri.file(context.asAbsolutePath('resources/loading.png'));
-    
-    // panel.webview.onDidReceiveMessage(
-    //   (message) => {
-    //     console.log("--- recieved message");
-    //   },
-    //   undefined,
-    //   context.subscriptions
-    // );
+    panel.iconPath = {
+      dark: vscode.Uri.joinPath(this.context.extensionUri, "assets", "react-email-light.svg"),
+      light: vscode.Uri.joinPath(this.context.extensionUri, "assets", "react-email-dark.svg"),
+    };
+
+    panel.webview.onDidReceiveMessage(
+      (message) => this.toolbarService.handleMessage(message),
+      undefined,
+      this.context.subscriptions
+    );
 
     panel.onDidDispose(
       () => {
         this.previewPanel = undefined;
-        this.setNoneState();
       },
       undefined,
       this.context.subscriptions
@@ -125,9 +127,10 @@ export class PreviewPanelService {
   }
 
   private static setContainerHtmlContent(panel: vscode.WebviewPanel) {
-    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelScript.js'));
-    const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'panelStyle.css'));
-    panel.webview.html = getTemplateWebviewContent(panel.webview.cspSource, this.getNonce(), styleUri, scriptUri);
+    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'src', 'panelScript.js'));
+    const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'style', 'main.css'));
+    const codiconsUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
+    panel.webview.html = getTemplateWebviewContent(panel.webview.cspSource, this.getNonce(), codiconsUri, styleUri, scriptUri);
   }
 
   private static getHtmlContent(): string {

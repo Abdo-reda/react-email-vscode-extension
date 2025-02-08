@@ -2,10 +2,12 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2022",
-    "outDir": ".",
+    "outDir": "../assets",
     "lib": ["ES2022", "DOM"],
     "sourceMap": false,
     "strict": true,
+    // "emitDeclarationOnly": false,
+    // "allowImportingTsExtensions": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true,

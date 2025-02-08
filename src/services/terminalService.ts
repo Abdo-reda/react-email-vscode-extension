@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { LoggingService } from "./loggingService";
 import { StatusBarService } from "./statusBarService";
+import { showWarningMessage } from "../utilities/vscodeUtilities";
 
 interface ITerminalExecutionConfig {
   cwd: vscode.Uri | undefined;
@@ -17,7 +18,7 @@ export class TerminalService {
   private visibility: boolean = false;
   private icon!: vscode.ThemeIcon;
   private color!: vscode.ThemeColor;
-  private activeExecution: boolean = false;
+  activeExecution: boolean = false;
   private terminalExecutionConfig: ITerminalExecutionConfig = {
     cwd: undefined,
     command: "",
@@ -35,6 +36,7 @@ export class TerminalService {
   }
 
   async runTerminal(command: string, cwd: vscode.Uri, onOutput: (output: string) => void = () => {}): Promise<boolean> {
+    LoggingService.log("Running Terminal ... ");
     const oldCWD = this.terminalExecutionConfig.cwd?.fsPath;
     const oldCommand = this.terminalExecutionConfig.command;
     this.terminalExecutionConfig = {
@@ -50,10 +52,16 @@ export class TerminalService {
       this.executeCommand(); //TODO: should I use await?
       return true;
     }
+    LoggingService.log("Terminal already running and have active execution");
+    onOutput('');
     return false;
   }
 
-  async restartTerminal() {
+  async stop() {
+    await this.killTerminal();
+  }
+
+  async restart() {
     if (!this.terminalExecutionConfig.cwd) return;
     LoggingService.log("Restarting Terminal");
     await this.createTerminal(this.terminalExecutionConfig.cwd);
@@ -100,7 +108,17 @@ export class TerminalService {
       iconPath: this.icon, //custom icons
     });
     this.isVisible = this.visibility;
-    // this.terminal.sendText(command, true); //TODO: what if shell integration is not enabled? is this the right way of handling this? should I just return to sendingText and using node child process ... I hate everything >.<
+    this.handleShellIntegration();
+  }
+
+  private handleShellIntegration() {
+    setTimeout(() => {
+      if (this.terminal?.shellIntegration) return;
+      StatusBarService.setErrorState();
+      LoggingService.warn('Shell integration is probably not enabled.');
+      showWarningMessage('Shell Integration is probably not enabled, unable to start rendering server. Please check that vscode can access a working shell.');
+        // this.terminal.sendText(command, true); //TODO: what if shell integration is not enabled? is this the right way of handling this? should I just return to sendingText and using node child process ... I hate everything >.<
+    }, 10000);
   }
 
   private setupListeners(context: vscode.ExtensionContext) {
@@ -134,6 +152,7 @@ export class TerminalService {
   }
 
   private async killTerminal() {
+    StatusBarService.setDefaultState();
     this.activeExecution = false;
     this.resetTerminal = true;
     await this.terminal?.dispose();

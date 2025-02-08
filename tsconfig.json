@@ -11,8 +11,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true
   },
-  "exclude": ["project", "assets"],
+  "exclude": ["project", "client", "assets"],
   "references": [
-    { "path": "./assets/tsconfig.json" },
+    { "path": "./client/tsconfig.json" },
   ]
 }

@@ -58,6 +58,8 @@ export const PreviewProps: EmailComponentProps = {
 
 ## Known Issues and Limitations
 
+* Sometimes the preview panel does not refresh (blank screen). When that happens, simply click on the preview button again or run the preview command.
+
 ## Extension Settings
 
 #### General
@@ -68,20 +70,27 @@ export const PreviewProps: EmailComponentProps = {
 
 ## Extension Commands
 
-* `preview`: **Open Preview Panel** and starts the rendering process if there are valid emails to render.
+* `preview`: **Opens and Refreshes the Preview Panel** and starts the rendering process if there are valid emails to render.
 
 * `selectPackageVersion`: **Opens A Quick Option Dialog** to select a valid package version for react email dependencies. 
 
 * `toggleRenderTerminal`: **Shows and Hides The Terminal**, once the terminal is shown in the UI, it can't be hidden unless the entire terminal panel is hidden.
 
-* `restartRenderTerminal`: **Restarts the Rendering Processing**.
+* `restartRenderProcess`: **Restarts the Rendering Processing**. will start the rendering process if not already started.
 
-## Release Notes
+* `stopRenderProcess`: **Stops the Rendering Processing**. will stop the rendering process if it has started.
+
+## Contribution
+
+All contributions are open, and all feedback is more than welcome. If you like it, please reach out and tell me. If you face any issues, do the same!
+
+**You can send me an [email](mailto:3bdo.reda@gmail.com), leave a [review](), open an [issue](https://github.com/Abdo-reda/php-stan-vscode-extension/issues)!**
 
 ## Possible Enhancements
 
 - [ ] Add support for deno. Make deno imports work (different import resolutions).
 - [ ] Add support for Bun.
+- [ ] Add support for yarn, pnpm.
 - [ ] Maybe look into supporting multiple emails at once (storybook approach).
   - Will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any.
 - [ ] Add support for multiple projects with different dependencies (external projects) ... maybe a setting for multiple projects or a single project.

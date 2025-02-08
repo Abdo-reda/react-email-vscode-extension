@@ -43,14 +43,14 @@ export class StatusBarService {
         this.instance.setDefaultCommand();
         this.instance.setDefaultToolTip();
         this.instance.statusBar.color = this.defaultColor;
-        this.instance.statusBar.text = `$(react-email-default) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
-    public static setSuccessState(): void {
+    public static setSuccessState(port: number): void {
         this.instance.setDefaultCommand();
-        this.instance.setSuccessToolTip();
+        this.instance.setSuccessToolTip(port);
         this.instance.statusBar.color = this.successColor;
-        this.instance.statusBar.text = `$(react-email-success) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     public static setLoadingState(): void {
@@ -64,14 +64,14 @@ export class StatusBarService {
         this.instance.setDefaultCommand();
         this.instance.setWarningToolTip();
         this.instance.statusBar.color = this.warnColor;
-        this.instance.statusBar.text = `$(react-email-warn) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     public static setErrorState(): void {
         this.instance.setErrorCommand();
         this.instance.setErrorToolTip();
         this.instance.statusBar.color = this.errorColor;
-        this.instance.statusBar.text = `$(react-email-error) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     private setDefaultCommand(): void 
@@ -93,15 +93,15 @@ export class StatusBarService {
     }
 
     private setDefaultToolTip(): void {
-        this.statusBar.tooltip = 'react email server has stopped'; 
+        this.statusBar.tooltip = 'react email server is not running'; 
     }
 
     private setLoadingToolTip(): void {
         this.statusBar.tooltip = 'react email rendering ...';
     }
 
-    private setSuccessToolTip(): void {
-        const url = 'https://';
+    private setSuccessToolTip(port: number): void {
+        const url = `http://localhost:${port}`;
         this.statusBar.tooltip = `react email server running at ${url}`;
     }
 }

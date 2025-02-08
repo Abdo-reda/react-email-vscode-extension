@@ -10,3 +10,4 @@ project/
 tsconfig.tsbuildinfo
 
 assets/**/*.js
+assets/**/*.ts

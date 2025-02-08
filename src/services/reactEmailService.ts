@@ -144,9 +144,9 @@ export class ReactEmailService {
     }
   }
 
-  async restartRenderTerminal() {
+  async restartRenderProcess() {
     LoggingService.log(`Restarting ${this.extensionConfiguration.renderApproach} Render Terminal`);
-    await this.terminalService.restartTerminal();
+    await this.terminalService.restart();
   }
 
   showRenderTerminal(): void {
@@ -165,18 +165,15 @@ export class ReactEmailService {
 
   private runServerTerminal(): void {
     LoggingService.log("Running Server Terminal");
-    this.terminalService.runTerminal(
-      this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`),
-      this.projectPath,
-      (output) => this.onServerEmailRenderCallback(output, false)
+    this.terminalService.runTerminal(this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`), this.projectPath, (output) =>
+      this.onServerEmailRenderCallback(output, false)
     );
   }
 
   private runScriptTerminal(): void {
-    this.terminalService.runTerminal(
-      this.packageManagerService.getCommandFormat("tsx watch script"), 
-      this.projectPath, 
-      (output) => this.onScriptEmailRenderCallback(output, false)
+    LoggingService.log("Running Script Terminal");
+    this.terminalService.runTerminal(this.packageManagerService.getCommandFormat("tsx watch script"), this.projectPath, (output) =>
+      this.onScriptEmailRenderCallback(output, false)
     );
   }
 
@@ -186,7 +183,13 @@ export class ReactEmailService {
   }
 
   private renderEmail(): void {
-    if (PreviewPanelService.isDisposed() || this.isSettingProjectUp) return; //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
+    //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
+    //I hate this...
+    if (this.isSettingProjectUp) return;
+    if (PreviewPanelService.isDisposed()) {
+      if (!this.terminalService.activeExecution) StatusBarService.setDefaultState();
+      return;
+    }
 
     if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SCRIPT) {
       this.runScriptTerminal();
@@ -204,13 +207,12 @@ export class ReactEmailService {
         text: "N/A",
         html: getServerWebviewContent(this.extensionConfiguration.server.port),
       });
-      StatusBarService.setSuccessState();
+      StatusBarService.setSuccessState(this.extensionConfiguration.server.port);
     }
   }
 
   private onScriptEmailRenderCallback(output: string, isError: boolean): void {
     LoggingService.log(`Executed render email script, isError: ${isError}`);
-    console.log("--- output", output);
     if (isError) {
       // LoggingService.warn("There was an error while rendering the email.");
       // if (error instanceof Error) PreviewPanelService.setErrorState(error.message);

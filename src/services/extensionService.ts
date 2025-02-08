@@ -70,8 +70,14 @@ export class ExtensionService {
     );
 
     disposables.push(
-      vscode.commands.registerCommand("react-email-renderer.restartRenderTerminal", () => {
-        this.terminalService.restartTerminal();
+      vscode.commands.registerCommand("react-email-renderer.restartRenderProcess", () => {
+        this.terminalService.restart();
+      })
+    );
+
+    disposables.push(
+      vscode.commands.registerCommand("react-email-renderer.stopRenderProcess", () => {
+        this.terminalService.stop();
       })
     );
 

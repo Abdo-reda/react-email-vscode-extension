@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-export function getTemplateWebviewContent(cpcSource: string, nonce: string, styleUri: vscode.Uri, scriptUri: vscode.Uri) {
+export function getTemplateWebviewContent(cpcSource: string, nonce: string, codiconsUri: vscode.Uri, styleUri: vscode.Uri, scriptUri: vscode.Uri) {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -11,19 +11,18 @@ export function getTemplateWebviewContent(cpcSource: string, nonce: string, styl
       content="default-src 'none'; 
       style-src ${cpcSource}; 
       img-src ${cpcSource} https:; 
+      font-src ${cpcSource};
       script-src 'nonce-${nonce}';
       frame-src http://localhost:* https://localhost:*;"
     >
     <link href="${styleUri}" rel="stylesheet">
+    <link href="${codiconsUri}" rel="stylesheet" />
 </head>
 <body>
-  <div id="toolbar">
-  <button id="zoom"> zoom </button>
-  </div>
+  <div id="toolbar"> </div>
   <div id="main">
-    <h1> this is a template </h1>
   </div>
-  <script nonce="${nonce}" src="${scriptUri}"></script>
+  <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>
 `;

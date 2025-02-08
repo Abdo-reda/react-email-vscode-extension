@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.6.0",
+  "version": "0.6.8",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",
@@ -30,6 +30,15 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "icons": {
+      "react-email": {
+        "description": "React Email Default Icon",
+        "default": {
+          "fontPath": "./assets/extensionIcons.woff",
+          "fontCharacter": "\\E001"
+        }
+      }
+    },
     "menus": {
       "editor/title": [
         {
@@ -43,7 +52,7 @@
       {
         "command": "react-email-renderer.preview",
         "title": "React Email Renderer: Preview Email",
-        "icon": "$(heart)"
+        "icon": "$(react-email)"
       },
       {
         "command": "react-email-renderer.selectPackageVersion",
@@ -56,9 +65,14 @@
         "icon": "$(terminal-view-icon)"
       },
       {
-        "command": "react-email-renderer.restartRenderTerminal",
+        "command": "react-email-renderer.restartRenderProcess",
         "title": "React Email Renderer: Restart the Render Process if its Running",
-        "icon": "$(terminal-view-icon)"
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "react-email-renderer.stopRenderProcess",
+        "title": "React Email Renderer: Stop the Render Process if its Running",
+        "icon": "$(debug-stop)"
       }
     ],
     "configuration": {
@@ -240,5 +254,8 @@
     "@vscode/vsce": "^3.2.1",
     "eslint": "^9.13.0",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.36"
   }
 }
