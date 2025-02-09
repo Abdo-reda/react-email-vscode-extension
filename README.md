@@ -20,7 +20,7 @@ This is **NOT an official extension from React Email**, its more of a passion/le
 
 ## Features
 
-![Demo Video](./assets/demo.gif)
+![Demo Video](https://github.com/Abdo-reda/react-email-vscode-extension/blob/version/v-0.7.0/assets/demo.gif?raw=true)
 
 **List of Features:**
 - Live preview with fast hmr utilizing the power of vite.
