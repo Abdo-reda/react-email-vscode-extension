@@ -1,4 +1,4 @@
-![React Email Renderer Cover](./assets/repo-cover.png)
+![React Email Renderer Cover](https://github.com/Abdo-reda/react-email-vscode-extension/blob/main/assets/repo-cover.png?raw=true)
 
 <div align="center"><strong>React Email Renderer</strong>  📧⚡</div>
 <div align="center">A Visual Studio Code Extension for the React Email Package.</div>
