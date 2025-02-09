@@ -56,10 +56,16 @@ export function getErrorWebviewContent(error: string) {
   </div>
   `;
 }
-//  sandbox="allow-scripts allow-same-origin"
+
 export function getServerWebviewContent(port: number) {
   return `
   <iframe id="frame" src="http://localhost:${port}"></iframe>
+`;
+}
+
+export function getScriptWebviewContent(html: string) {
+  return `
+  <iframe id="frame" srcdoc="${html}" ></iframe>
 `;
 }
 

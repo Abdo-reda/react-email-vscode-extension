@@ -80,10 +80,36 @@ As mentioned, while solutions like [Preview.js](https://previewjs.com/) already 
 ## Extension Settings
 
 #### General
+* `renderApproach`: The Approach used to render the email. By default a `vite server` runs. A `script` approach will be added in a future release hopefully.
+
+* `dependencies`: Which dependencies will be used to render the email. Currently, only `external` option is allowed. Later, a `local` option that uses the active project dependencies would be supported. 
+
+* `runtimeEnviornment`: The Runtime Enviornment Used to execute scripts. Currently only `node` is supported. Later, support for deno, bun will be added.
+
+* `packageManager`: The Package Manager Used to install and run Dependencies. By default `npm` is used.
+
+* `renderOn`: When should the email be rerendered and updated. By default its `OnSave`.
 
 #### Packages
 
+* `packages.directory`: The path for the external project that will be used to render the email. By default the `extensionUri:` - The uri of the directory containing the extension - is used.
+
+* `packages.reactEmailRenderVersion`: The [version](https://www.npmjs.com/package/@react-email/render?activeTab=versions) of `@react-email/render` used. 
+
+* `packages.reactEmailComponentsVersion`: The [version](https://www.npmjs.com/package/@react-email/components?activeTab=versions) of `@react-email/components` used.
+
+* `packages.reactVersion`: The [version](https://www.npmjs.com/package/react?activeTab=versions) of `react` used.
+
+* `packages.reactDomVersion`: The [version](https://www.npmjs.com/package/react-dom?activeTab=versions) of `react-dom` used.
+
 #### Server
+
+* `server.port`: The Port that the Live Render Server will run on. Make sure that the port is not reserved, assigned or in use for the extension to work.
+
+* `server.terminalVisible`: Controls the visiblity behaviour of the server terminal when rendering. By default its hidden. 
+
+* `server.terminalColor`: The Color of the Render Server Terminal.
+
 
 ## Extension Commands
 

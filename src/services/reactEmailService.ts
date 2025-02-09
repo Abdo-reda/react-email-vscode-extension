@@ -12,7 +12,7 @@ import { IExtensionConfigurationService } from "../interfaces/extensionConfigura
 import { StatusBarService } from "./statusBarService";
 import { TerminalService } from "./terminalService";
 import { RenderApproachEnum } from "../constants/renderApproachEnum";
-import { getServerWebviewContent } from "../constants/previewWebviewConstant";
+import { getScriptWebviewContent, getServerWebviewContent } from "../constants/previewWebviewConstant";
 import { DEFAULT_EXTENSION_URI } from "./extensionConfigurationService";
 
 export class ReactEmailService {
@@ -213,15 +213,18 @@ export class ReactEmailService {
     }
   }
 
-  private onScriptEmailRenderCallback(_output: string, isError: boolean): void {
+  private onScriptEmailRenderCallback(output: string, isError: boolean): void {
     LoggingService.log(`Executed render email script, isError: ${isError}`);
     if (isError) {
       // LoggingService.warn("There was an error while rendering the email.");
       // if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
       // StatusBarService.setErrorState();
     } else {
-      // PreviewPanelService.setPreviewState(renderOutput);
-      // StatusBarService.setSuccessState();
+      PreviewPanelService.setPreviewState({
+        text: "N/A",
+        html: getScriptWebviewContent(output),
+      });
+      StatusBarService.setSuccessState();
     }
   }
 

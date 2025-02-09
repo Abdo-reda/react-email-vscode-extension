@@ -3,8 +3,6 @@ import { ExtensionService } from "./services/extensionService";
 
 //TODO:
 //- make sure script is working
-//- configurations changes (subscripe and handler behaviour)
-//- react-email-renderer.packages.directory (update the usage of directory)
 
 const extensionService = new ExtensionService();
 

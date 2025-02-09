@@ -6,6 +6,19 @@ const EmailComponent = require('./email');
 const { render } = require('@react-email/render');
 const { createElement } = require('react');
 const emailElement = createElement(EmailComponent.default, EmailComponent.PreviewProps);
+render(emailElement).then((html) => {
+  process.stdout.write(html);
+}).catch(console.error);
+`;
+
+
+export const ARCHIVE_SCRIPT = `
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const EmailComponent = require('./email');
+const { render } = require('@react-email/render');
+const { createElement } = require('react');
+const emailElement = createElement(EmailComponent.default, EmailComponent.PreviewProps);
 Promise.all([
   render(emailElement),
   render(emailElement, { plainText: true })

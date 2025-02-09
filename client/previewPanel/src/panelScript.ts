@@ -1,4 +1,4 @@
-import { buildToolbar } from "./toolbarScript.js";
+import { buildToolbar, handleInitValues } from "./toolbarScript.js";
 
 const mainDiv = document.getElementById("main")!;
 const toolbarDiv = document.getElementById("toolbar")!;
@@ -19,6 +19,7 @@ function handleMessage(command: string, data: any) {
 function replaceMainContent(html: string) {
   //maybe if its the same html content, we shouldn't do anything?
   mainDiv.innerHTML = html;
+  handleInitValues();
 }
 
 buildToolbar(toolbarDiv);

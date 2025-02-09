@@ -15,6 +15,10 @@ export function buildToolbar(toolbar: HTMLElement) {
   // toolbar.append(createToolbarButton("Show Source", handleHtml, '', '<html />'));
 }
 
+export function handleInitValues() {
+  handleInitialZoom();
+}
+
 function createToolbarButton(actionTitle: string, handler: (e: MouseEvent) => void, icon?: string, text?: string) {
   const btn = document.createElement("button");
   btn.title = actionTitle;
@@ -32,6 +36,12 @@ function createToolbarButton(actionTitle: string, handler: (e: MouseEvent) => vo
 
   return btn;
 }
+
+function handleInitialZoom() {
+  const iframeRef = document.getElementById("frame");
+  if (!iframeRef) return;
+  iframeRef.style.scale = `${currentZoom}`;
+} 
 
 function handleZoomIn() {
   const iframeRef = document.getElementById("frame");

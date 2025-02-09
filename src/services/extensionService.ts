@@ -144,7 +144,7 @@ export class ExtensionService {
     this.terminalService.init(
       context,
       this.extensionConfiguration.server.terminalVisible,
-      new vscode.ThemeIcon("server-process"),
+      new vscode.ThemeIcon("react-email"),
       new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor)
     );
     this.reactMailService.initExtension(context, this.terminalService, this.extensionConfiguration);

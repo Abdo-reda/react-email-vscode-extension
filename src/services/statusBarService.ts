@@ -46,7 +46,7 @@ export class StatusBarService {
         this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
-    public static setSuccessState(port: number): void {
+    public static setSuccessState(port?: number): void {
         this.instance.setDefaultCommand();
         this.instance.setSuccessToolTip(port);
         this.instance.statusBar.color = this.successColor;
@@ -100,8 +100,12 @@ export class StatusBarService {
         this.statusBar.tooltip = 'react email rendering ...';
     }
 
-    private setSuccessToolTip(port: number): void {
-        const url = `http://localhost:${port}`;
-        this.statusBar.tooltip = `react email server running at ${url}`;
+    private setSuccessToolTip(port?: number): void {
+        if (port) {
+            const url = `http://localhost:${port}`;
+            this.statusBar.tooltip = `react email server running at ${url}`;
+            return;
+        }
+        this.statusBar.tooltip = `react email script running ...`;
     }
 }
