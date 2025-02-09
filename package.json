@@ -3,7 +3,7 @@
   "displayName": "React Email Renderer",
   "publisher": "AbdoReda",
   "description": "Preview your React emails instantly.",
-  "version": "0.6.8",
+  "version": "0.7.0",
   "icon": "assets/logo.png",
   "repository": {
     "type": "git",

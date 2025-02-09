@@ -33,8 +33,8 @@ jobs:
     - name: Upload VSIX artifact
       uses: actions/upload-artifact@v4
       with:
-        name: php-stan-vscode-extension
-        path: ./build/php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix
+        name: react-email-renderer-vscode-extension
+        path: ./build/react-email-renderer-${{ env.PACKAGE_VERSION  }}.vsix
 
   release:
     name: Release
@@ -53,12 +53,12 @@ jobs:
     - name: Download VSIX artifact
       uses: actions/download-artifact@v4
       with:
-        name: php-stan-vscode-extension
+        name: react-email-renderer
 
     - name: Create GitHub Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix"
+        artifacts: "react-email-renderer-${{ env.PACKAGE_VERSION  }}.vsix"
         tag: ${{ env.PACKAGE_VERSION  }}
         name: "${{ env.PACKAGE_VERSION  }} Release"
         generateReleaseNotes: true
@@ -86,10 +86,10 @@ jobs:
       - name: Download VSIX artifact
         uses: actions/download-artifact@v4
         with:
-          name: php-stan-vscode-extension
+          name: react-email-renderer-vscode-extension
 
       - name: Publish to VSCode Marketplace
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
         run: |
-          vsce publish --packagePath php-stan-plugin-${{ env.PACKAGE_VERSION  }}.vsix --pat $VSCE_TOKEN --no-update-package-json --skip-duplicate
+          vsce publish --packagePath react-email-renderer-${{ env.PACKAGE_VERSION  }}.vsix --pat $VSCE_TOKEN --no-update-package-json --skip-duplicate
