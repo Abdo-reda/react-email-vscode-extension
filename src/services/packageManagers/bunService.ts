@@ -1,34 +1,44 @@
-// import { runCommandSync, spawnProcess } from "../../utilities/vscodeUtilities";
-// import { LoggingService } from "../loggingService";
-// import { BasePackageService } from "./basePackageService";
-
-// export class BunService extends BasePackageService {
-
-//   checkVersion(): boolean {
-//     try {
-//       const output = runCommandSync('bun --version');
-//       LoggingService.log(`Found bun version ${output}`);
-//       return true;
-//     } catch (error) {
-//       return false;
-//     }
-//   }
-
-//   runEmailServer(version: string, port: string) {
-//     try {
-//       LoggingService.log(`Spawning bun Email Server Process`);
-//       this.emailServer = spawnProcess(`bun x react-email@${version} dev --port ${port}`);
-//       return true;
-//     } catch (error) {
-//       return false;
-//     }
-//   }
-
-//   downloadPackage(_name: string, _version: string): boolean {
-//     return false;
-//   }
-
-//   installPackage(_name: string, _version: string): boolean {
-//     return false;
-//   }
-// }
+import {
+    runCommandInBackground,
+    runCommandSync,
+  } from "../../utilities/vscodeUtilities";
+  import { LoggingService } from "../loggingService";
+  import { BasePackageManagerService } from "./basePackageManagerService";
+  import { PackageManagerEnum } from "../../constants/packageManagerEnum";
+  import { ISimplePackage } from "../../interfaces/simplePackageInterface";
+  
+  export class BunService extends BasePackageManagerService {
+    packageManager = PackageManagerEnum.BUN;
+  
+    checkInstalled(): boolean {
+      try {
+        const output = runCommandSync("bun --version");
+        LoggingService.log(`Found ${this.packageManager} version ${output.trim()}`);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+  
+    installPackages(
+      packages: ISimplePackage[],
+      cwd: string | undefined,
+      errorCallback: (output: string) => void = () => {},
+      successCallback: (output: string) => void = () => {}
+    ): void {
+      const packageCommand = packages.reduce((prev, cur) => {
+        return `${prev} ${cur.name}@${cur.version}`;
+      }, "");
+      runCommandInBackground(
+        `bun add --cwd ./ ${packageCommand} --exact`,
+        cwd,
+        errorCallback,
+        successCallback
+      );
+    }
+    
+    getCommandFormat(command: string): string {
+        return `bunx ${command}`;
+    }
+  }
+  

@@ -56,7 +56,7 @@
       },
       {
         "command": "react-email-renderer.selectPackageVersion",
-        "title": "React Email Renderer: Update Package Version Configuration",
+        "title": "React Email Renderer: Select Package Version Configuration",
         "icon": "$(versions)"
       },
       {
@@ -81,8 +81,7 @@
         "react-email-renderer.renderApproach": {
           "type": "string",
           "enum": [
-            "server",
-            "script"
+            "server"
           ],
           "markdownEnumDescriptions": [
             "`server` uses a vite server with a minimal react application to render the email.",
@@ -90,7 +89,7 @@
           ],
           "default": "server",
           "order": 0,
-          "markdownDescription": "The Approach used to render the email."
+          "markdownDescription": "The Approach used to render the email. A script support will be added in a future release hopefully."
         },
         "react-email-renderer.dependencies": {
           "type": "string",
@@ -116,11 +115,13 @@
         "react-email-renderer.packageManager": {
           "type": "string",
           "enum": [
-            "npm"
+            "npm",
+            "pnpm",
+            "yarn"
           ],
           "default": "npm",
           "order": 0,
-          "markdownDescription": "The Package Manager Used to install and run Dependencies. Currently only npm is supported. Later, support for yarn, pnpm, bun will be added."
+          "markdownDescription": "The Package Manager Used to install and run Dependencies."
         },
         "react-email-renderer.renderOn": {
           "type": "string",

@@ -3,7 +3,7 @@ import { LoggingService } from "./loggingService";
 import { ReactEmailService } from "./reactEmailService";
 import { PreviewPanelService } from "./previewPanelService";
 import { ExtensionConfigurations, PACKAGE_CONFIGURATION_MAP } from "../constants/configurationEnum";
-import { getConfiguration, isConfigurationChanged, updateConfiguration } from "../utilities/vscodeUtilities";
+import { getRefreshedConfiguration, isConfigurationChanged, updateConfiguration } from "../utilities/vscodeUtilities";
 import { ExtensionConfigurationService } from "./extensionConfigurationService";
 import { PackagesEnum } from "../constants/packagesEnum";
 import { StatusBarService } from "./statusBarService";
@@ -32,16 +32,64 @@ export class ExtensionService {
     LoggingService.log("Setting up Extension Configuration.");
     this.extensionConfiguration.loadConfiguration();
 
-    //TODO: there is an issue with this !!!!
     return vscode.workspace.onDidChangeConfiguration((event) => {
-      // if (isConfigurationChanged(event, ExtensionConfigurations.REACT_EMAIL_VERSION)) {
-      //   this.reactEmailVersion = getConfiguration<string>(ExtensionConfigurations.REACT_EMAIL_VERSION) ?? "latest";
-      //   LoggingService.log(`${ExtensionConfigurations.REACT_EMAIL_VERSION} Configuration Changed ${this.reactEmailVersion}!`);
-      // }
-
       if (isConfigurationChanged(event, ExtensionConfigurations.PACKAGE_MANAGER)) {
-        this.extensionConfiguration.packageManager = getConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, this.extensionConfiguration.packageManager);
+        this.extensionConfiguration.packageManager = getRefreshedConfiguration(ExtensionConfigurations.PACKAGE_MANAGER, this.extensionConfiguration.packageManager);
+        this.reactMailService.switchPackageManagerService(this.extensionConfiguration.packageManager);
         LoggingService.log(`${ExtensionConfigurations.PACKAGE_MANAGER} Configuration Changed ${this.extensionConfiguration.packageManager}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.DIRECTORY)) {
+        this.extensionConfiguration.packages.directory = getRefreshedConfiguration(ExtensionConfigurations.DIRECTORY, this.extensionConfiguration.packages.directory);
+        LoggingService.log(`${ExtensionConfigurations.DIRECTORY} Configuration Changed ${this.extensionConfiguration.packages.directory}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.SERVER_PORT)) {
+        this.extensionConfiguration.server.port = getRefreshedConfiguration(ExtensionConfigurations.SERVER_PORT, this.extensionConfiguration.server.port);
+        this.terminalService.restart();
+        LoggingService.log(`${ExtensionConfigurations.SERVER_PORT} Configuration Changed ${this.extensionConfiguration.server.port}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.SERVER_TERMINAL_COLOR)) {
+        this.extensionConfiguration.server.terminalColor = getRefreshedConfiguration(ExtensionConfigurations.SERVER_TERMINAL_COLOR, this.extensionConfiguration.server.terminalColor);
+        this.terminalService.setColor( new vscode.ThemeColor(this.extensionConfiguration.server.terminalColor));
+        this.terminalService.restart();
+        LoggingService.log(`${ExtensionConfigurations.SERVER_TERMINAL_COLOR} Configuration Changed ${this.extensionConfiguration.server.terminalColor}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.SERVER_TERMINAL_VISIBLE)) {
+        this.extensionConfiguration.server.terminalVisible = getRefreshedConfiguration(ExtensionConfigurations.SERVER_TERMINAL_VISIBLE, this.extensionConfiguration.server.terminalVisible);
+        this.terminalService.setVisiblity(this.extensionConfiguration.server.terminalVisible );
+        LoggingService.log(`${ExtensionConfigurations.SERVER_TERMINAL_VISIBLE} Configuration Changed ${this.extensionConfiguration.server.terminalVisible}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.RENDER_ON)) {
+        this.extensionConfiguration.renderOn = getRefreshedConfiguration(ExtensionConfigurations.RENDER_ON, this.extensionConfiguration.renderOn);
+        LoggingService.log(`${ExtensionConfigurations.RENDER_ON} Configuration Changed ${this.extensionConfiguration.renderOn}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.REACT_DOM_VERSION)) {
+        this.extensionConfiguration.packages.reactDomVersion = getRefreshedConfiguration(ExtensionConfigurations.REACT_DOM_VERSION, this.extensionConfiguration.packages.reactDomVersion);
+        this.reactMailService.installProjectPackages();
+        LoggingService.log(`${ExtensionConfigurations.REACT_DOM_VERSION} Configuration Changed ${this.extensionConfiguration.packages.reactDomVersion}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.REACT_VERSION)) {
+        this.extensionConfiguration.packages.reactVersion = getRefreshedConfiguration(ExtensionConfigurations.REACT_VERSION, this.extensionConfiguration.packages.reactVersion);
+        this.reactMailService.installProjectPackages();
+        LoggingService.log(`${ExtensionConfigurations.REACT_VERSION} Configuration Changed ${this.extensionConfiguration.packages.reactVersion}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.REACT_EMAIL_COMPONENTS_VERSION)) {
+        this.extensionConfiguration.packages.reactEmailComponentsVersion = getRefreshedConfiguration(ExtensionConfigurations.REACT_EMAIL_COMPONENTS_VERSION, this.extensionConfiguration.packages.reactEmailComponentsVersion);
+        this.reactMailService.installProjectPackages();
+        LoggingService.log(`${ExtensionConfigurations.REACT_EMAIL_COMPONENTS_VERSION} Configuration Changed ${this.extensionConfiguration.packages.reactEmailComponentsVersion}!`);
+      }
+
+      if (isConfigurationChanged(event, ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION)) {
+        this.extensionConfiguration.packages.reactEmailRenderVersion = getRefreshedConfiguration(ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION, this.extensionConfiguration.packages.reactEmailRenderVersion);
+        this.reactMailService.installProjectPackages();
+        LoggingService.log(`${ExtensionConfigurations.REACT_EMAIL_RENDER_VERSION} Configuration Changed ${this.extensionConfiguration.packages.reactEmailRenderVersion}!`);
       }
     });
   }

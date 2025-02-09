@@ -42,7 +42,7 @@ export function getLoadingWebviewContent() {
 
 export function getNoneWebviewContent() {
   return `
-    <h1> NONE </h1>
+    <h2> ----- NO EMAIL ----- </h2>
   `;
 }
 
@@ -65,6 +65,12 @@ export function getServerWebviewContent(port: number) {
 
 export function getRenderingWebviewContent() {
   return `
-    <h1> RENDERING </h1>
+    <div class="loader-container">
+    <svg class="loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" stroke="#555" stroke-width="10" fill="none" stroke-dasharray="250" stroke-dashoffset="48">
+        </circle>
+    </svg>
+    <h2>Rendering ...</h2>
+  </div>
   `;
 }

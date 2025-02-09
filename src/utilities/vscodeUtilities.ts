@@ -12,6 +12,14 @@ export function getConfiguration<T>(
   return config.get<T>(configuration, defaultValue);
 }
 
+export function getRefreshedConfiguration<T>(
+  configuration: ExtensionConfigurations,
+  defaultValue: T
+): T {
+  const refreshConfig = vscode.workspace.getConfiguration("react-email-renderer");
+  return refreshConfig.get<T>(configuration, defaultValue);
+}
+
 export async function updateConfiguration(
   configuration: ExtensionConfigurations,
   value: any,

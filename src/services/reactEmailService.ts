@@ -13,6 +13,7 @@ import { StatusBarService } from "./statusBarService";
 import { TerminalService } from "./terminalService";
 import { RenderApproachEnum } from "../constants/renderApproachEnum";
 import { getServerWebviewContent } from "../constants/previewWebviewConstant";
+import { DEFAULT_EXTENSION_URI } from "./extensionConfigurationService";
 
 export class ReactEmailService {
   private encoder = new TextEncoder();
@@ -50,18 +51,19 @@ export class ReactEmailService {
     this.updateAndRenderEmail(document);
   }
 
-  private switchPackageManagerService(packageManager: PackageManagerEnum): void {
+  switchPackageManagerService(packageManager: PackageManagerEnum): void {
     this.packageManagerService = PackageManagerServiceFactory.getService(packageManager);
     this.initPackageManagerService();
   }
 
-  private initPackageManagerService(): void {
+  initPackageManagerService(): void {
     LoggingService.log(`Checking Package Manager ${this.extensionConfiguration.packageManager}`);
     const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
       showErrorMessage(
-        `Could not find a suitable package manager. ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
+        `${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
       );
+      LoggingService.warn(`Package Manager ${this.extensionConfiguration.packageManager} was not found.`);
       return;
     }
     this.setupExternalProject();
@@ -100,7 +102,7 @@ export class ReactEmailService {
     );
   }
 
-  private installProjectPackages() {
+  installProjectPackages() {
     LoggingService.log("Installing Packages in external project");
 
     this.packageManagerService.installPackages(
@@ -156,7 +158,7 @@ export class ReactEmailService {
   async updateAndRenderEmail(document: vscode.TextDocument) {
     StatusBarService.setLoadingState();
     const fileName = path.basename(document.fileName);
-    if (!this.isSettingProjectUp && this.latestEmailDocument?.fileName !== document.fileName) PreviewPanelService.setRenderingState(fileName);
+    if (!this.isSettingProjectUp && this.latestEmailDocument?.fileName !== document.fileName || !this.terminalService.activeExecution) PreviewPanelService.setRenderingState(fileName);
     PreviewPanelService.setEmailTitle(fileName);
     this.latestEmailDocument = document;
     await this.updateMainEmail(document);
@@ -232,10 +234,7 @@ export class ReactEmailService {
   }
 
   get projectPath() {
-    return vscode.Uri.joinPath(this.storagePath, `project`); //${this.reactEmailVersion}
+    const basePath = this.extensionConfiguration.packages.directory === DEFAULT_EXTENSION_URI ? this.storagePath : vscode.Uri.file(this.extensionConfiguration.packages.directory);
+    return vscode.Uri.joinPath(basePath, 'project'); 
   }
-
-  // get renderServerURL() {
-  //   return `http://localhost:${this.serverPort}/preview/main`;
-  // }
 }

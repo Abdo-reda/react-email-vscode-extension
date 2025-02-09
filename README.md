@@ -20,7 +20,15 @@ This is **NOT an official extension from React Email**, its more of a passion/le
 
 ## Features
 
-//demo video here
+![Demo Video](./assets/demo.gif)
+
+**List of Features:**
+- Live preview with fast hmr utilizing the power of vite.
+- Support for props.
+- Additional tools including:
+  - Inspecting generated html utilizing vscode dev tools.
+  - Ability to Zoom in/out.
+  - ... more to come
 
 ## Usage Notes
 
@@ -54,11 +62,20 @@ export const PreviewProps: EmailComponentProps = {
 
 ## Why Though?
 
+I recently used react email in one of my projects, and while using it I wished if there was a faster way I can preview my emails instead of having to manually setup a project. I was not the only person that had this idea and I was even more motivated when I found out there was an already existing discussion [on the same issue here](https://github.com/resend/react-email/discussions/574). so I decided to try and give it a shot. 
+
+As mentioned, while solutions like [Preview.js](https://previewjs.com/) already exist. I faced some problems using it, also I felt it was quite a very generic solution which can be great sometimes but can also lead to heaviness. I believed a targeted solution will yield better results, this is what this extension represents. It solves a very niche and specific problem (only rendering react emails) but in doing so, I think it leads to faster and more consistent results.
+
 ## Requirements
+
+- A working package manager [`npm`, `yarn`, `pnpm`] needs to be installed globally.
 
 ## Known Issues and Limitations
 
 * Sometimes the preview panel does not refresh (blank screen). When that happens, simply click on the preview button again or run the preview command.
+* `pnpm` and `yarn` were not tested...
+* no support for `deno` or `bun` yet ...
+
 
 ## Extension Settings
 
@@ -80,7 +97,7 @@ export const PreviewProps: EmailComponentProps = {
 
 * `stopRenderProcess`: **Stops the Rendering Processing**. will stop the rendering process if it has started.
 
-## Contribution
+## Contributions
 
 All contributions are open, and all feedback is more than welcome. If you like it, please reach out and tell me. If you face any issues, do the same!
 
@@ -90,7 +107,8 @@ All contributions are open, and all feedback is more than welcome. If you like i
 
 - [ ] Add support for deno. Make deno imports work (different import resolutions).
 - [ ] Add support for Bun.
-- [ ] Add support for yarn, pnpm.
+- [ ] Make sure that yarn, pnpm are working.
+- [ ] Add support for script approach. 
 - [ ] Maybe look into supporting multiple emails at once (storybook approach).
   - Will have to perform cleanup when the extension starts or disposes to delete any files in the emails folder if there is any.
 - [ ] Add support for multiple projects with different dependencies (external projects) ... maybe a setting for multiple projects or a single project.
