@@ -127,7 +127,7 @@ As mentioned, while solutions like [Preview.js](https://previewjs.com/) already 
 
 All contributions are open, and all feedback is more than welcome. If you like it, please reach out and tell me. If you face any issues, do the same!
 
-**You can send me an [email](mailto:3bdo.reda@gmail.com), leave a [review](https://marketplace.visualstudio.com/items?itemName=AbdoReda.react-email-renderer&ssr=false#review-details), open an [issue](https://github.com/Abdo-reda/php-stan-vscode-extension/issues)!**
+**You can send me an [email](mailto:3bdo.reda@gmail.com), leave a [review](https://marketplace.visualstudio.com/items?itemName=AbdoReda.react-email-renderer&ssr=false#review-details), open an [issue](https://github.com/Abdo-reda/react-email-vscode-extension/issues)!**
 
 ## Possible Enhancements
 
