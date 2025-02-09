@@ -12,7 +12,8 @@ import { IExtensionConfigurationService } from "../interfaces/extensionConfigura
 import { StatusBarService } from "./statusBarService";
 import { TerminalService } from "./terminalService";
 import { RenderApproachEnum } from "../constants/renderApproachEnum";
-import { getServerWebviewContent } from "../constants/previewWebviewConstant";
+import { getScriptWebviewContent, getServerWebviewContent } from "../constants/previewWebviewConstant";
+import { DEFAULT_EXTENSION_URI } from "./extensionConfigurationService";
 
 export class ReactEmailService {
   private encoder = new TextEncoder();
@@ -50,18 +51,19 @@ export class ReactEmailService {
     this.updateAndRenderEmail(document);
   }
 
-  private switchPackageManagerService(packageManager: PackageManagerEnum): void {
+  switchPackageManagerService(packageManager: PackageManagerEnum): void {
     this.packageManagerService = PackageManagerServiceFactory.getService(packageManager);
     this.initPackageManagerService();
   }
 
-  private initPackageManagerService(): void {
+  initPackageManagerService(): void {
     LoggingService.log(`Checking Package Manager ${this.extensionConfiguration.packageManager}`);
     const exists = this.packageManagerService.checkInstalled();
     if (!exists) {
       showErrorMessage(
-        `Could not find a suitable package manager. ${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
+        `${this.extensionConfiguration.packageManager} is not installed. Please make sure its installed and available globally or select a different package manager.`
       );
+      LoggingService.warn(`Package Manager ${this.extensionConfiguration.packageManager} was not found.`);
       return;
     }
     this.setupExternalProject();
@@ -100,7 +102,7 @@ export class ReactEmailService {
     );
   }
 
-  private installProjectPackages() {
+  installProjectPackages() {
     LoggingService.log("Installing Packages in external project");
 
     this.packageManagerService.installPackages(
@@ -144,9 +146,9 @@ export class ReactEmailService {
     }
   }
 
-  async restartRenderTerminal() {
+  async restartRenderProcess() {
     LoggingService.log(`Restarting ${this.extensionConfiguration.renderApproach} Render Terminal`);
-    await this.terminalService.restartTerminal();
+    await this.terminalService.restart();
   }
 
   showRenderTerminal(): void {
@@ -156,7 +158,7 @@ export class ReactEmailService {
   async updateAndRenderEmail(document: vscode.TextDocument) {
     StatusBarService.setLoadingState();
     const fileName = path.basename(document.fileName);
-    if (!this.isSettingProjectUp && this.latestEmailDocument?.fileName !== document.fileName) PreviewPanelService.setRenderingState(fileName);
+    if (!this.isSettingProjectUp && this.latestEmailDocument?.fileName !== document.fileName || !this.terminalService.activeExecution) PreviewPanelService.setRenderingState(fileName);
     PreviewPanelService.setEmailTitle(fileName);
     this.latestEmailDocument = document;
     await this.updateMainEmail(document);
@@ -165,18 +167,15 @@ export class ReactEmailService {
 
   private runServerTerminal(): void {
     LoggingService.log("Running Server Terminal");
-    this.terminalService.runTerminal(
-      this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`),
-      this.projectPath,
-      (output) => this.onServerEmailRenderCallback(output, false)
+    this.terminalService.runTerminal(this.packageManagerService.getCommandFormat(`vite --port=${this.extensionConfiguration.server.port}`), this.projectPath, (output) =>
+      this.onServerEmailRenderCallback(output, false)
     );
   }
 
   private runScriptTerminal(): void {
-    this.terminalService.runTerminal(
-      this.packageManagerService.getCommandFormat("tsx watch script"), 
-      this.projectPath, 
-      (output) => this.onScriptEmailRenderCallback(output, false)
+    LoggingService.log("Running Script Terminal");
+    this.terminalService.runTerminal(this.packageManagerService.getCommandFormat("tsx watch script"), this.projectPath, (output) =>
+      this.onScriptEmailRenderCallback(output, false)
     );
   }
 
@@ -186,7 +185,13 @@ export class ReactEmailService {
   }
 
   private renderEmail(): void {
-    if (PreviewPanelService.isDisposed() || this.isSettingProjectUp) return; //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
+    //check if file is empty as well?  (await vscode.workspace.fs.readFile(this.mainEmailFilePath)).byteLength
+    //I hate this...
+    if (this.isSettingProjectUp) return;
+    if (PreviewPanelService.isDisposed()) {
+      if (!this.terminalService.activeExecution) StatusBarService.setDefaultState();
+      return;
+    }
 
     if (this.extensionConfiguration.renderApproach === RenderApproachEnum.SCRIPT) {
       this.runScriptTerminal();
@@ -204,20 +209,22 @@ export class ReactEmailService {
         text: "N/A",
         html: getServerWebviewContent(this.extensionConfiguration.server.port),
       });
-      StatusBarService.setSuccessState();
+      StatusBarService.setSuccessState(this.extensionConfiguration.server.port);
     }
   }
 
   private onScriptEmailRenderCallback(output: string, isError: boolean): void {
     LoggingService.log(`Executed render email script, isError: ${isError}`);
-    console.log("--- output", output);
     if (isError) {
       // LoggingService.warn("There was an error while rendering the email.");
       // if (error instanceof Error) PreviewPanelService.setErrorState(error.message);
       // StatusBarService.setErrorState();
     } else {
-      // PreviewPanelService.setPreviewState(renderOutput);
-      // StatusBarService.setSuccessState();
+      PreviewPanelService.setPreviewState({
+        text: "N/A",
+        html: getScriptWebviewContent(output),
+      });
+      StatusBarService.setSuccessState();
     }
   }
 
@@ -230,10 +237,7 @@ export class ReactEmailService {
   }
 
   get projectPath() {
-    return vscode.Uri.joinPath(this.storagePath, `project`); //${this.reactEmailVersion}
+    const basePath = this.extensionConfiguration.packages.directory === DEFAULT_EXTENSION_URI ? this.storagePath : vscode.Uri.file(this.extensionConfiguration.packages.directory);
+    return vscode.Uri.joinPath(basePath, 'project'); 
   }
-
-  // get renderServerURL() {
-  //   return `http://localhost:${this.serverPort}/preview/main`;
-  // }
 }

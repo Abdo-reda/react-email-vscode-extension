@@ -12,6 +12,14 @@ export function getConfiguration<T>(
   return config.get<T>(configuration, defaultValue);
 }
 
+export function getRefreshedConfiguration<T>(
+  configuration: ExtensionConfigurations,
+  defaultValue: T
+): T {
+  const refreshConfig = vscode.workspace.getConfiguration("react-email-renderer");
+  return refreshConfig.get<T>(configuration, defaultValue);
+}
+
 export async function updateConfiguration(
   configuration: ExtensionConfigurations,
   value: any,
@@ -112,7 +120,7 @@ export function runCommandInBackground(
       return;
     }
     if (stderr) {
-      showWarningMessage(stderr);
+      LoggingService.warn(stderr);
     }
     successCallback(stdout);
   });
@@ -156,13 +164,13 @@ export function getActiveDocument(): vscode.TextDocument|undefined {
 }
 
 export function showInfoMessage(msg: string): void {
-  vscode.window.showInformationMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showInformationMessage(`[React Email Renderer]: ${msg}`);
 }
 
 export function showWarningMessage(msg: string): void {
-  vscode.window.showWarningMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showWarningMessage(`[React Email Renderer]: ${msg}`);
 }
 
 export function showErrorMessage(msg: string): void {
-  vscode.window.showErrorMessage(`[React-Email-Renderer]: ${msg}`);
+  vscode.window.showErrorMessage(`[React Email Renderer]: ${msg}`);
 }

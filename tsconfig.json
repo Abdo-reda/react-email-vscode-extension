@@ -1,19 +1,18 @@
 {
-	"compilerOptions": {
-		"module": "Node16",
-		"target": "ES2022",
-		"outDir": "out",
-		"lib": [
-			"ES2022"
-		],
-		"sourceMap": true,
-		"rootDir": "src",
-		"strict": true ,
-		"noImplicitReturns": true, 
-		"noFallthroughCasesInSwitch": true, 
-		"noUnusedParameters": true,  
-	},
-	"exclude": [
-        "project"
-    ]
+  "compilerOptions": {
+    "module": "Node16",
+    "target": "ES2022",
+    "outDir": "out",
+    "lib": ["ES2022"],
+    "sourceMap": true,
+    "rootDir": "src",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedParameters": true
+  },
+  "exclude": ["project", "client", "assets"],
+  "references": [
+    { "path": "./client/tsconfig.json" },
+  ]
 }

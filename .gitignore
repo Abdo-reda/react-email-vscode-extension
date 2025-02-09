@@ -6,3 +6,8 @@ node_modules
 
 build/
 project/
+
+tsconfig.tsbuildinfo
+
+assets/**/*.js
+assets/**/*.ts

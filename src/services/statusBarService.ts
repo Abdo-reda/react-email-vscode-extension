@@ -7,8 +7,8 @@ import * as vscode from "vscode";
 // (grey, nothing is happening) --> runs the server and opens the tab - server is closed / ended
 
 export class StatusBarService {
-    private statusBar: vscode.StatusBarItem;
     private static _instance: StatusBarService;
+    private statusBar: vscode.StatusBarItem;
     private static defaultColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.foreground');
     private static errorColor: vscode.ThemeColor = new vscode.ThemeColor('statusBarItem.errorForeground');
     private static successColor: vscode.ThemeColor = new vscode.ThemeColor('notebookStatusSuccessIcon.foreground');
@@ -43,14 +43,14 @@ export class StatusBarService {
         this.instance.setDefaultCommand();
         this.instance.setDefaultToolTip();
         this.instance.statusBar.color = this.defaultColor;
-        this.instance.statusBar.text = `$(react-email-default) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
-    public static setSuccessState(): void {
+    public static setSuccessState(port?: number): void {
         this.instance.setDefaultCommand();
-        this.instance.setSuccessToolTip();
+        this.instance.setSuccessToolTip(port);
         this.instance.statusBar.color = this.successColor;
-        this.instance.statusBar.text = `$(react-email-success) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     public static setLoadingState(): void {
@@ -64,19 +64,19 @@ export class StatusBarService {
         this.instance.setDefaultCommand();
         this.instance.setWarningToolTip();
         this.instance.statusBar.color = this.warnColor;
-        this.instance.statusBar.text = `$(react-email-warn) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     public static setErrorState(): void {
         this.instance.setErrorCommand();
         this.instance.setErrorToolTip();
         this.instance.statusBar.color = this.errorColor;
-        this.instance.statusBar.text = `$(react-email-error) react-email`;
+        this.instance.statusBar.text = `$(react-email) react-email`;
     }
     
     private setDefaultCommand(): void 
     {
-        this.statusBar.command = 'react-email-renderer.toggleRenderingTerminalVisibility';
+        this.statusBar.command = 'react-email-renderer.toggleRenderTerminal';
     }
 
     private setErrorCommand(): void
@@ -93,15 +93,19 @@ export class StatusBarService {
     }
 
     private setDefaultToolTip(): void {
-        this.statusBar.tooltip = 'react email server has stopped'; 
+        this.statusBar.tooltip = 'react email server is not running'; 
     }
 
     private setLoadingToolTip(): void {
         this.statusBar.tooltip = 'react email rendering ...';
     }
 
-    private setSuccessToolTip(): void {
-        const url = 'https://';
-        this.statusBar.tooltip = `react email server running at ${url}`;
+    private setSuccessToolTip(port?: number): void {
+        if (port) {
+            const url = `http://localhost:${port}`;
+            this.statusBar.tooltip = `react email server running at ${url}`;
+            return;
+        }
+        this.statusBar.tooltip = `react email script running ...`;
     }
 }

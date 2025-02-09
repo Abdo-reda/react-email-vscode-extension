@@ -5,15 +5,21 @@ import {
   getLoadingWebviewContent,
   getNoneWebviewContent,
   getRenderingWebviewContent,
+  getTemplateWebviewContent,
 } from "../constants/previewWebviewConstant";
 import { IPanelState } from "../interfaces/panelStateInterface";
 import { IRenderEmail } from "../interfaces/renderEmailOutput";
+import crypto from "node:crypto";
+import { PreviewPanelCommandEnum } from "../constants/previewPanelCommandEnum";
+import { IPanelHtmlMessage } from "../interfaces/panelMessageInterface";
+import { ToolbarService } from "./toolbarService";
 
 export class PreviewPanelService {
   private static previewPanel: undefined | vscode.WebviewPanel;
   private static context: vscode.ExtensionContext;
   private static panelState: PreviewPanelStateEnum = PreviewPanelStateEnum.NONE;
   private static panelStateInfo: IPanelState;
+  private static toolbarService: ToolbarService = new ToolbarService();
 
   static init(context: vscode.ExtensionContext) {
     this.context = context;
@@ -33,14 +39,14 @@ export class PreviewPanelService {
     return !this.previewPanel;
   }
 
+  static setEmailTitle(title: string): void {
+    this.panelStateInfo.emailTitle = title;
+  }
+
   static setRenderingState(title: string): void {
     this.panelState = PreviewPanelStateEnum.RENDERING;
     this.setEmailTitle(title);
     this.refreshPanel();
-  }
-
-  static setEmailTitle(title: string): void {
-    this.panelStateInfo.emailTitle = title;
   }
 
   static setPreviewState(emailOutput: IRenderEmail): void {
@@ -79,7 +85,7 @@ export class PreviewPanelService {
   private static refreshPanel(): void {
     if (!this.previewPanel) return;
     this.previewPanel.title = this.getTitle();
-    this.previewPanel.webview.html = this.getHtmlContent();
+    this.setMainContent(this.getHtmlContent());
   }
 
   private static createPanel(): vscode.WebviewPanel {
@@ -92,30 +98,39 @@ export class PreviewPanelService {
       },
       {
         enableScripts: true,
-        localResourceRoots: [],
+        localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel'), vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode/codicons', 'dist')]
       },
     );
 
-    // panel.iconPath = vscode.Uri.file(context.asAbsolutePath('resources/loading.png'));
-    
-    // panel.webview.onDidReceiveMessage(
-    //   (message) => {
-    //     console.log("--- recieved message");
-    //   },
-    //   undefined,
-    //   context.subscriptions
-    // );
+    panel.iconPath = {
+      dark: vscode.Uri.joinPath(this.context.extensionUri, "assets", "react-email-light.svg"),
+      light: vscode.Uri.joinPath(this.context.extensionUri, "assets", "react-email-dark.svg"),
+    };
+
+    panel.webview.onDidReceiveMessage(
+      (message) => this.toolbarService.handleMessage(message),
+      undefined,
+      this.context.subscriptions
+    );
 
     panel.onDidDispose(
       () => {
         this.previewPanel = undefined;
-        this.setNoneState();
       },
       undefined,
       this.context.subscriptions
     );
 
+    this.setContainerHtmlContent(panel);
+
     return panel;
+  }
+
+  private static setContainerHtmlContent(panel: vscode.WebviewPanel) {
+    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'src', 'panelScript.js'));
+    const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'previewPanel', 'style', 'main.css'));
+    const codiconsUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
+    panel.webview.html = getTemplateWebviewContent(panel.webview.cspSource, this.getNonce(), codiconsUri, styleUri, scriptUri);
   }
 
   private static getHtmlContent(): string {
@@ -139,5 +154,20 @@ export class PreviewPanelService {
     if (this.panelStateInfo.emailTitle)
       return `${this.panelStateInfo.emailTitle}[preview]`;
     return "React Email [preview]";
+  }
+
+  
+  private static setMainContent(htmlContent: string): void {
+    const message: IPanelHtmlMessage = {
+      command: PreviewPanelCommandEnum.SET_MAIN_CONTENT,
+      data: {
+        html: htmlContent,
+      }
+    };
+    this.previewPanel!.webview.postMessage(message);
+  }
+
+  private static getNonce(): string {
+    return crypto.randomBytes(8).toString('base64');
   }
 }
