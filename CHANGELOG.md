@@ -5,6 +5,6 @@ This project does not really adher to [Semantic Versioning](https://semver.org/s
 
 Types of changes: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
 
-## [0.7.0] - 2025-02-09 - [PR]()
+## [0.7.0] - 2025-02-09 - [PR](https://github.com/Abdo-reda/react-email-vscode-extension/pull/3)
 
-- Initial Release 
+- Initial Release!

@@ -1,9 +1,9 @@
-![React Email Renderer Cover](./assets/repo-cover.png)
+![React Email Renderer Cover](https://github.com/Abdo-reda/react-email-vscode-extension/blob/main/assets/repo-cover.png?raw=true)
 
 <div align="center"><strong>React Email Renderer</strong>  📧⚡</div>
 <div align="center">A Visual Studio Code Extension for the React Email Package.</div>
 <div align="center">
-  <a href="https://react.email">Marketplace</a> 
+  <a href="https://marketplace.visualstudio.com/items?itemName=AbdoReda.react-email-renderer">Marketplace</a> 
   <span> · </span>
   <a href="https://github.com/Abdo-reda/react-email-vscode-extension">Github</a> 
   <span> · </span>
@@ -20,7 +20,7 @@ This is **NOT an official extension from React Email**, its more of a passion/le
 
 ## Features
 
-![Demo Video](./assets/demo.gif)
+![Demo Video](https://github.com/Abdo-reda/react-email-vscode-extension/blob/version/v-0.7.0/assets/demo.gif?raw=true)
 
 **List of Features:**
 - Live preview with fast hmr utilizing the power of vite.
@@ -127,7 +127,7 @@ As mentioned, while solutions like [Preview.js](https://previewjs.com/) already 
 
 All contributions are open, and all feedback is more than welcome. If you like it, please reach out and tell me. If you face any issues, do the same!
 
-**You can send me an [email](mailto:3bdo.reda@gmail.com), leave a [review](), open an [issue](https://github.com/Abdo-reda/php-stan-vscode-extension/issues)!**
+**You can send me an [email](mailto:3bdo.reda@gmail.com), leave a [review](https://marketplace.visualstudio.com/items?itemName=AbdoReda.react-email-renderer&ssr=false#review-details), open an [issue](https://github.com/Abdo-reda/php-stan-vscode-extension/issues)!**
 
 ## Possible Enhancements
 
